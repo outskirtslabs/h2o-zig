@@ -25,6 +25,11 @@ h2o features explicitly excluded:
 [h2o]: https://h2o.examp1e.net/
 
 
+## Quick start
+
+1. Install [zig][zig]
+2. `zig build`
+
 ## Prerequisites
 
 You need the following installed:
@@ -37,13 +42,12 @@ If you have nix you can use the dev shell provided by the flake in this repo.
 [zig]: https://ziglang.org/
 
 
-## Installation
+## Use as a dependency
 
 First, update your `build.zig.zon`:
 
 ```
-# Initialize a `zig build` project if you haven't already
-zig init
+zig init # if you don't have a build.zig already
 zig fetch --save git+https://github.com/outskirtslabs/h2o-zig.git
 ```
 
@@ -80,6 +84,34 @@ Or via command line when building:
 ```bash
 zig build -Duse-boringssl=true
 ```
+
+### Cross-Compilation to macOS
+
+When cross-compiling from Linux to macOS targets (x86_64-macos or aarch64-macos), the build requires the `APPLE_SDK_PATH` environment variable to be set.
+This points to the macOS SDK that provides system headers and libraries.
+
+**Using Nix (Recommended)**
+
+The provided nix flake automatically sets up `APPLE_SDK_PATH` when you enter the development shell:
+
+```bash
+nix develop
+zig build -Dtarget=aarch64-macos
+zig build -Dtarget=x86_64-macos
+```
+
+**Manual Setup**
+
+If not using nix, you'll need to obtain a macOS SDK and set the environment variable:
+
+```bash
+export APPLE_SDK_PATH=/path/to/MacOSX.sdk
+zig build -Dtarget=x86_64-macos
+```
+
+The SDK must contain `usr/include` with macOS system headers. Without this, cross-compilation to macOS will fail with an error about the missing `APPLE_SDK_PATH` environment variable.
+
+**Note**: Cross-compilation to macOS from macOS does not require `APPLE_SDK_PATH` as the system SDK is used automatically.
 
 ## Notes
 
