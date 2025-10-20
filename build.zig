@@ -69,8 +69,11 @@ pub fn build(b: *std.Build) void {
         })) |boringssl| {
             h2o.linkLibrary(boringssl.artifact("bcm"));
             h2o.linkLibrary(boringssl.artifact("crypto"));
-            h2o.linkLibrary(boringssl.artifact("ssl"));
+            const ssl_artifact = boringssl.artifact("ssl");
+            h2o.linkLibrary(ssl_artifact);
             h2o.linkLibrary(boringssl.artifact("decrepit"));
+            h2o.addIncludePath(ssl_artifact.getEmittedIncludeTree());
+            b.installArtifact(ssl_artifact);
         }
     } else {
         if (b.lazyDependency("openssl", .{
@@ -84,12 +87,15 @@ pub fn build(b: *std.Build) void {
                     @panic("Cross-compiling to macOS requires APPLE_SDK_PATH environment variable");
                 var sdk_include_buf: [1024]u8 = undefined;
                 const sdk_include = std.fmt.bufPrint(&sdk_include_buf, "{s}/usr/include", .{sdk_path}) catch unreachable;
-
                 ssl_artifact.addSystemIncludePath(.{ .cwd_relative = sdk_include });
                 crypto_artifact.addSystemIncludePath(.{ .cwd_relative = sdk_include });
             }
             h2o.linkLibrary(ssl_artifact);
             h2o.linkLibrary(crypto_artifact);
+            h2o.addIncludePath(ssl_artifact.getEmittedIncludeTree());
+            h2o.addIncludePath(crypto_artifact.getEmittedIncludeTree());
+            b.installArtifact(ssl_artifact);
+            b.installArtifact(crypto_artifact);
         }
     }
     h2o.linkLibrary(zlib.artifact("z"));
@@ -359,4 +365,13 @@ pub fn build(b: *std.Build) void {
     };
 
     h2o.installHeader(quicly_tracer_header, "quicly/quicly-tracer.h");
+
+    const ssl = if (use_boringssl) "boringssl" else "openssl";
+    if (b.lazyDependency(ssl, .{
+        .target = target,
+        .optimize = optimize,
+    })) |ssl_dep| {
+        const ssl_artifact = ssl_dep.artifact("ssl");
+        h2o.installHeadersDirectory(ssl_artifact.getEmittedIncludeTree(), "", .{});
+    }
 }
