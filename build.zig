@@ -2,6 +2,7 @@ const std = @import("std");
 
 pub fn build(b: *std.Build) void {
     const use_boringssl = b.option(bool, "use-boringssl", "Use BoringSSL instead of OpenSSL (default: false)") orelse false;
+    const use_external_brotli = b.option(bool, "use-external-brotli", "Use external brotli Zig dependency instead of vendored sources (default: false)") orelse false;
 
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
@@ -31,6 +32,14 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
         .pie = needs_pic,
     });
+    const brotli = if (use_external_brotli)
+        b.dependency("brotli_build", .{
+            .target = target,
+            .optimize = optimize,
+            .pie = needs_pic,
+        })
+    else
+        null;
 
     const h2o = b.addLibrary(.{
         .name = "h2o",
@@ -52,7 +61,9 @@ pub fn build(b: *std.Build) void {
     h2o.addIncludePath(h2o_dep.path("include"));
     h2o.addIncludePath(b.path(".zig-cache")); // For generated headers
     h2o.addIncludePath(h2o_dep.path("deps/cloexec"));
-    h2o.addIncludePath(h2o_dep.path("deps/brotli/c/include"));
+    if (!use_external_brotli) {
+        h2o.addIncludePath(h2o_dep.path("deps/brotli/c/include"));
+    }
     h2o.addIncludePath(h2o_dep.path("deps/golombset"));
     h2o.addIncludePath(h2o_dep.path("deps/hiredis"));
     h2o.addIncludePath(h2o_dep.path("deps/libgkc"));
@@ -91,6 +102,9 @@ pub fn build(b: *std.Build) void {
     }
     h2o.linkLibrary(zlib.artifact("z"));
     h2o.linkLibrary(zstd.artifact("zstd"));
+    if (use_external_brotli) {
+        h2o.linkLibrary(brotli.?.artifact("brotli_lib"));
+    }
 
     const base_cflags = [_][]const u8{
         "-std=gnu99",
@@ -134,7 +148,10 @@ pub fn build(b: *std.Build) void {
         "deps/yaml/src/writer.c",
     };
 
-    const brotli_sources = [_][]const u8{
+    const brotli_sources_external = [_][]const u8{
+        "lib/handler/compress/brotli.c",
+    };
+    const brotli_sources_vendored = [_][]const u8{
         "deps/brotli/c/common/dictionary.c",
         "deps/brotli/c/dec/bit_reader.c",
         "deps/brotli/c/dec/decode.c",
@@ -159,6 +176,7 @@ pub fn build(b: *std.Build) void {
         "deps/brotli/c/enc/utf8_util.c",
         "lib/handler/compress/brotli.c",
     };
+    const brotli_sources = if (use_external_brotli) &brotli_sources_external else &brotli_sources_vendored;
 
     const lib_sources = [_][]const u8{
         "deps/cloexec/cloexec.c",
