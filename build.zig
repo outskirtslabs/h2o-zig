@@ -23,14 +23,6 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
         .pie = needs_pic,
     });
-    const brotli = if (use_external_brotli)
-        b.dependency("brotli_build", .{
-            .target = target,
-            .optimize = optimize,
-            .pie = needs_pic,
-        })
-    else
-        null;
 
     const h2o = b.addLibrary(.{
         .name = "h2o-evloop",
@@ -103,7 +95,13 @@ pub fn build(b: *std.Build) void {
     h2o.linkLibrary(zlib.artifact("z"));
     h2o.linkLibrary(zstd.artifact("zstd"));
     if (use_external_brotli) {
-        h2o.linkLibrary(brotli.?.artifact("brotli_lib"));
+        if (b.lazyDependency("brotli_build", .{
+            .target = target,
+            .optimize = optimize,
+            .pie = needs_pic,
+        })) |brotli| {
+            h2o.linkLibrary(brotli.artifact("brotli_lib"));
+        }
     }
 
     const base_cflags = [_][]const u8{
