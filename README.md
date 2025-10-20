@@ -1,6 +1,29 @@
-# h2o / libh2o for zig
+# libh2o for zig
 
-This is [h2o and libh2o][h2o], packaged for Zig with cross-compilation support for Linux and macos.
+This is [libh2o][h2o], packaged for Zig with cross-compilation support for Linux and macos.
+
+- all dependencies are statically linked
+- output is a single shared library
+
+The intended usage is for libh2o language bindings.
+
+Included features:
+
+Required h2o features:
+
+- http 1
+- http 2
+- quic + http3
+- brotli
+- zstd
+
+
+h2o features explictly excluded:
+
+- mruby
+- memcached integration
+- redis integration
+- libuv
 
 [h2o]: https://h2o.examp1e.net/
 
