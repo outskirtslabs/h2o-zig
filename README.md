@@ -15,7 +15,7 @@ Included features:
 - brotli
 - zstd
 
-h2o features explictly excluded:
+h2o features explicitly excluded:
 
 - mruby
 - memcached integration

@@ -43,7 +43,7 @@ pub fn build(b: *std.Build) void {
         null;
 
     const h2o = b.addLibrary(.{
-        .name = "h2o",
+        .name = "h2o-evloop",
         .root_module = b.createModule(.{
             .target = target,
             .optimize = optimize,
