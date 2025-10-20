@@ -48,3 +48,7 @@ Supported targets
 
 The target zig version is 0.15.2
 
+## License: MIT License
+
+Copyright © 2025 Casey Link <casey@outskirtslabs.com>
+Distributed under the [MIT](https://spdx.org/licenses/MIT.html).
