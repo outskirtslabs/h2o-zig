@@ -9,14 +9,11 @@ The intended usage is for libh2o language bindings.
 
 Included features:
 
-Required h2o features:
-
 - http 1
 - http 2
 - quic + http3
 - brotli
 - zstd
-
 
 h2o features explictly excluded:
 
@@ -45,6 +42,31 @@ const h2o_dependency = b.dependency("h2o", .{
     .optimize = optimize,
 });
 your_exe.linkLibrary(h2o_dependency.artifact("h2o"));
+```
+
+### Build Options
+
+The following build-time flags are available:
+
+- `-Duse-boringssl=<bool>` - Use BoringSSL instead of OpenSSL (default: `true`)
+- `-Duse-external-brotli=<bool>` - Use external brotli dependency instead of vendored sources (default: `true`). The vendored one is from upstream h2o and is a much older version than the external one.
+
+Example usage:
+
+```zig
+const h2o_dependency = b.dependency("h2o", .{
+    .target = target,
+    .optimize = optimize,
+    .@"use-boringssl" = true,
+    .@"use-external-brotli" = true,
+});
+your_exe.linkLibrary(h2o_dependency.artifact("h2o"));
+```
+
+Or via command line when building:
+
+```bash
+zig build -Duse-boringssl=true -Duse-external-brotli=true
 ```
 
 And use the library like this:
