@@ -2,10 +2,10 @@
 
 This is [libh2o][h2o], packaged for Zig with cross-compilation support for Linux and macos.
 
-- all dependencies are statically linked
-- output is a single shared library
+- all dependencies are statically linked into the output
+- output is a static library (`.a`) for embedding into other projects
 
-The intended usage is for libh2o language bindings.
+The intended usage is for building language bindings and FFI wrappers that need to expose all h2o and SSL symbols in a final shared library.
 
 Included features:
 
@@ -24,6 +24,10 @@ h2o features explicitly excluded:
 
 [h2o]: https://h2o.examp1e.net/
 
+
+- Supported zig version is 0.15.2
+- Current h2o version is:
+
 ## Installation
 
 First, update your `build.zig.zon`:
@@ -41,7 +45,7 @@ const h2o_dependency = b.dependency("h2o", .{
     .target = target,
     .optimize = optimize,
 });
-your_exe.linkLibrary(h2o_dependency.artifact("h2o"));
+your_exe.linkLibrary(h2o_dependency.artifact("h2o-evloop"));
 ```
 
 ### Build Options
@@ -57,27 +61,15 @@ Example usage:
 const h2o_dependency = b.dependency("h2o", .{
     .target = target,
     .optimize = optimize,
-    .@"use-boringssl" = true,
-    .@"use-external-brotli" = true,
+    .@"use-boringssl" = true, // default
 });
-your_exe.linkLibrary(h2o_dependency.artifact("h2o"));
+your_exe.linkLibrary(h2o_dependency.artifact("h2o-evloop"));
 ```
 
 Or via command line when building:
 
 ```bash
-zig build -Duse-boringssl=true -Duse-external-brotli=true
-```
-
-And use the library like this:
-```zig
-const TODO = @cImport({
-    @cInclude("TODO");
-});
-
-const todo = ... libh2o example...
-...
-...
+zig build -Duse-boringssl=true
 ```
 
 ## Notes
@@ -89,9 +81,6 @@ Supported targets
 - macos x86_64
 - macos aarch64
 
-### Zig Version
-
-The target zig version is 0.15.2
 
 ## License: MIT License
 

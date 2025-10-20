@@ -30,7 +30,7 @@ pub fn build(b: *std.Build) void {
             .target = target,
             .optimize = optimize,
         }),
-        .linkage = .dynamic,
+        .linkage = .static,
     });
 
     if (is_macos_cross) {
