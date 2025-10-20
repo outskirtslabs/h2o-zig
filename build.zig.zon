@@ -11,6 +11,7 @@
         .openssl = .{
             .url = "git+https://github.com/dzfrias/openssl-zig.git#2fbf20e414d6e09f1e1a30a5a831cf4aad87a2b6",
             .hash = "openssl-3.4.0-YymhPpDhAABAHYWqHr3POORyDXLqD_UhTTN6sMfxcHdl",
+            .lazy =true,
         },
         .zlib = .{
             .url = "git+https://github.com/Ramblurr/zlib.git#c93c77f376b9ef61b0c15b991676c5454ca820a8",
@@ -23,6 +24,7 @@
         .boringssl = .{
             .url = "git+https://github.com/Ramblurr/boringssl.git#7473d0f55612bf710f132217f8f785676ad2ce2b",
             .hash = "boringssl-0.20250514.0-EhtkNRjfAgBTl-8Mlph63-asaonR2py9B8HcBh7eMZm1",
+            .lazy =true,
         },
         .brotli_build = .{
             .url = "git+https://github.com/Ramblurr/brotli.zig.git#ac26035660084cb329576f78a686984c5e0a8d29",

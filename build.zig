@@ -13,16 +13,6 @@ pub fn build(b: *std.Build) void {
     const is_macos_cross = target.result.os.tag == .macos and @import("builtin").os.tag != .macos;
 
     const h2o_dep = b.dependency("h2o", .{});
-    const ssl_dep = if (use_boringssl)
-        b.dependency("boringssl", .{
-            .target = target,
-            .optimize = optimize,
-        })
-    else
-        b.dependency("openssl", .{
-            .target = target,
-            .optimize = optimize,
-        });
     const zlib = b.dependency("zlib", .{
         .target = target,
         .optimize = optimize,
@@ -81,24 +71,34 @@ pub fn build(b: *std.Build) void {
     h2o.addIncludePath(h2o_dep.path("deps/yoml"));
 
     if (use_boringssl) {
-        h2o.linkLibrary(ssl_dep.artifact("bcm"));
-        h2o.linkLibrary(ssl_dep.artifact("crypto"));
-        h2o.linkLibrary(ssl_dep.artifact("ssl"));
-        h2o.linkLibrary(ssl_dep.artifact("decrepit"));
-    } else {
-        const ssl_artifact = ssl_dep.artifact("ssl");
-        const crypto_artifact = ssl_dep.artifact("crypto");
-        if (is_macos_cross) {
-            const sdk_path = b.graph.env_map.get("APPLE_SDK_PATH") orelse
-                @panic("Cross-compiling to macOS requires APPLE_SDK_PATH environment variable");
-            var sdk_include_buf: [1024]u8 = undefined;
-            const sdk_include = std.fmt.bufPrint(&sdk_include_buf, "{s}/usr/include", .{sdk_path}) catch unreachable;
-
-            ssl_artifact.addSystemIncludePath(.{ .cwd_relative = sdk_include });
-            crypto_artifact.addSystemIncludePath(.{ .cwd_relative = sdk_include });
+        if (b.lazyDependency("boringssl", .{
+            .target = target,
+            .optimize = optimize,
+        })) |boringssl| {
+            h2o.linkLibrary(boringssl.artifact("bcm"));
+            h2o.linkLibrary(boringssl.artifact("crypto"));
+            h2o.linkLibrary(boringssl.artifact("ssl"));
+            h2o.linkLibrary(boringssl.artifact("decrepit"));
         }
-        h2o.linkLibrary(ssl_artifact);
-        h2o.linkLibrary(crypto_artifact);
+    } else {
+        if (b.lazyDependency("openssl", .{
+            .target = target,
+            .optimize = optimize,
+        })) |openssl| {
+            const ssl_artifact = openssl.artifact("ssl");
+            const crypto_artifact = openssl.artifact("crypto");
+            if (is_macos_cross) {
+                const sdk_path = b.graph.env_map.get("APPLE_SDK_PATH") orelse
+                    @panic("Cross-compiling to macOS requires APPLE_SDK_PATH environment variable");
+                var sdk_include_buf: [1024]u8 = undefined;
+                const sdk_include = std.fmt.bufPrint(&sdk_include_buf, "{s}/usr/include", .{sdk_path}) catch unreachable;
+
+                ssl_artifact.addSystemIncludePath(.{ .cwd_relative = sdk_include });
+                crypto_artifact.addSystemIncludePath(.{ .cwd_relative = sdk_include });
+            }
+            h2o.linkLibrary(ssl_artifact);
+            h2o.linkLibrary(crypto_artifact);
+        }
     }
     h2o.linkLibrary(zlib.artifact("z"));
     h2o.linkLibrary(zstd.artifact("zstd"));
