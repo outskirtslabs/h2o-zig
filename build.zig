@@ -3,7 +3,6 @@ const std = @import("std");
 pub fn build(b: *std.Build) void {
     const use_boringssl = b.option(bool, "use-boringssl", "Use BoringSSL instead of OpenSSL (default: true)") orelse true;
     const use_external_brotli = b.option(bool, "use-external-brotli", "Use external brotli Zig dependency instead of vendored sources (default: true)") orelse true;
-    const use_vendored_tracer = b.option(bool, "use-vendored-quicly-tracer", "Use vendored quicly-tracer.h instead of generating from quicly-probes.d (default: true)") orelse true;
 
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
@@ -344,34 +343,19 @@ pub fn build(b: *std.Build) void {
     h2o.installHeader(h2o_dep.path("deps/quicly/include/quicly.h"), "quicly.h");
     h2o.installHeadersDirectory(h2o_dep.path("deps/quicly/include/quicly"), "quicly", .{});
 
-    const quicly_tracer_header = if (use_vendored_tracer) blk: {
-        h2o.addIncludePath(b.path("vendor"));
-        break :blk b.path("vendor/quicly-tracer.h");
-    } else blk: {
-        const gen_tracer = b.addSystemCommand(&[_][]const u8{
-            "perl",
-            h2o_dep.path("deps/quicly/misc/probe2trace.pl").getPath(b),
-            "-a",
-            "tracer",
-        });
-        gen_tracer.setStdIn(.{ .lazy_path = h2o_dep.path("deps/quicly/quicly-probes.d") });
-        const generated_header = gen_tracer.captureStdOut();
-        const write_files = b.addWriteFiles();
-        const tracer_header_in_cache = write_files.addCopyFile(generated_header, "quicly-tracer.h");
-        h2o.addIncludePath(write_files.getDirectory());
-        h2o.step.dependOn(&write_files.step);
+    // Generate quicly-tracer.h from quicly-probes.d using Perl (requires Perl)
+    const gen_tracer = b.addSystemCommand(&[_][]const u8{
+        "perl",
+        h2o_dep.path("deps/quicly/misc/probe2trace.pl").getPath(b),
+        "-a",
+        "tracer",
+    });
+    gen_tracer.setStdIn(.{ .lazy_path = h2o_dep.path("deps/quicly/quicly-probes.d") });
+    const generated_header = gen_tracer.captureStdOut();
+    const write_files = b.addWriteFiles();
+    const tracer_header_in_cache = write_files.addCopyFile(generated_header, "quicly-tracer.h");
+    h2o.addIncludePath(write_files.getDirectory());
+    h2o.step.dependOn(&write_files.step);
 
-        break :blk tracer_header_in_cache;
-    };
-
-    h2o.installHeader(quicly_tracer_header, "quicly/quicly-tracer.h");
-
-    const ssl = if (use_boringssl) "boringssl" else "openssl";
-    if (b.lazyDependency(ssl, .{
-        .target = target,
-        .optimize = optimize,
-    })) |ssl_dep| {
-        const ssl_artifact = ssl_dep.artifact("ssl");
-        h2o.installHeadersDirectory(ssl_artifact.getEmittedIncludeTree(), "", .{});
-    }
+    h2o.installHeader(tracer_header_in_cache, "quicly/quicly-tracer.h");
 }

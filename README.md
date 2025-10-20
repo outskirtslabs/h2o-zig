@@ -25,8 +25,17 @@ h2o features explicitly excluded:
 [h2o]: https://h2o.examp1e.net/
 
 
-- Supported zig version is 0.15.2
-- Current h2o version is:
+## Prerequisites
+
+You need the following installed:
+
+- [Zig][zig] 0.15.2
+- Perl (for an h2o build step)
+
+If you have nix you can use the dev shell provided by the flake in this repo.
+
+[zig]: https://ziglang.org/
+
 
 ## Installation
 
