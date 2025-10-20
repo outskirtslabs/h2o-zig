@@ -330,4 +330,15 @@ pub fn build(b: *std.Build) void {
     h2o.linkSystemLibrary("m");
 
     b.installArtifact(h2o);
+
+    h2o.installHeader(h2o_dep.path("include/h2o.h"), "h2o.h");
+    h2o.installHeadersDirectory(h2o_dep.path("include/h2o"), "h2o", .{});
+
+    h2o.installHeader(h2o_dep.path("deps/picotls/include/picotls.h"), "picotls.h");
+    h2o.installHeadersDirectory(h2o_dep.path("deps/picotls/include/picotls"), "picotls", .{});
+
+    h2o.installHeader(h2o_dep.path("deps/quicly/include/quicly.h"), "quicly.h");
+    h2o.installHeadersDirectory(h2o_dep.path("deps/quicly/include/quicly"), "quicly", .{});
+
+    h2o.installHeader(b.path(".zig-cache/quicly-tracer.h"), "quicly/quicly-tracer.h");
 }
