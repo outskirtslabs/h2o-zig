@@ -5,8 +5,8 @@
 
     .dependencies = .{
         .h2o = .{
-            .url = "https://github.com/h2o/h2o/archive/562d7bd089173da03e71bc4c0824468751c5b411.tar.gz",
-            .hash = "N-V-__8AAC6dswMtRHXT5G_C_4qCa7IYgrAhJl_ghfSu5O90",
+            .url = "https://github.com/Ramblurr/h2o/archive/a0eb5c98c7ef1b84be93b8868303c05dddbba264.tar.gz",
+            .hash = "N-V-__8AAKa7KQRLADl-bUQ5M67yVeG9tskwe-AmpfwMNdwu",
         },
         .openssl = .{
             .url = "git+https://github.com/dzfrias/openssl-zig.git#2fbf20e414d6e09f1e1a30a5a831cf4aad87a2b6",
@@ -20,6 +20,7 @@
         .zstd = .{
             .url = "git+https://github.com/allyourcodebase/zstd.git#01327d49cbc56dc24c20a167bb0055d7fc23de84",
             .hash = "zstd-1.5.7-KEItkJ8vAAC5_rRlKmLflYQ-eKXbAIQBWZNmmJtS18q0",
+            .lazy = true,
         },
         .boringssl = .{
             .url = "git+https://github.com/Ramblurr/boringssl.git#7473d0f55612bf710f132217f8f785676ad2ce2b",
@@ -29,6 +30,7 @@
         .brotli_build = .{
             .url = "git+https://github.com/Ramblurr/brotli.zig.git#ac26035660084cb329576f78a686984c5e0a8d29",
             .hash = "brotli_build-0.0.0-KJ9D2_sUAABKsFh3cVnQac7MbuJvgmYoq7PxcRa3lY1x",
+            .lazy = true,
         },
     },
 

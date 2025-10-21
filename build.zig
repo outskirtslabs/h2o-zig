@@ -3,6 +3,7 @@ const std = @import("std");
 pub fn build(b: *std.Build) void {
     const use_boringssl = b.option(bool, "use-boringssl", "Use BoringSSL instead of OpenSSL (default: true)") orelse true;
     const use_external_brotli = b.option(bool, "use-external-brotli", "Use external brotli Zig dependency instead of vendored sources (default: true)") orelse true;
+    const use_external_zstd = b.option(bool, "use-external-zstd", "Use external zstd Zig dependency instead of vendored sources (default: true)") orelse true;
 
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
@@ -13,11 +14,6 @@ pub fn build(b: *std.Build) void {
 
     const h2o_dep = b.dependency("h2o", .{});
     const zlib = b.dependency("zlib", .{
-        .target = target,
-        .optimize = optimize,
-        .pie = needs_pic,
-    });
-    const zstd = b.dependency("zstd", .{
         .target = target,
         .optimize = optimize,
         .pie = needs_pic,
@@ -60,6 +56,9 @@ pub fn build(b: *std.Build) void {
     h2o.addIncludePath(h2o_dep.path("deps/quicly/include"));
     h2o.addIncludePath(h2o_dep.path("deps/yaml/include"));
     h2o.addIncludePath(h2o_dep.path("deps/yoml"));
+    if (!use_external_zstd) {
+        h2o.addIncludePath(h2o_dep.path("deps/zstd/lib"));
+    }
 
     if (use_boringssl) {
         if (b.lazyDependency("boringssl", .{
@@ -98,7 +97,16 @@ pub fn build(b: *std.Build) void {
         }
     }
     h2o.linkLibrary(zlib.artifact("z"));
-    h2o.linkLibrary(zstd.artifact("zstd"));
+    if (use_external_zstd) {
+        if (b.lazyDependency("zstd", .{
+            .target = target,
+            .optimize = optimize,
+            .pie = needs_pic,
+        })) |zstd| {
+            h2o.linkLibrary(zstd.artifact("zstd"));
+            h2o.addIncludePath(zstd.artifact("zstd").getEmittedIncludeTree());
+        }
+    }
     if (use_external_brotli) {
         if (b.lazyDependency("brotli_build", .{
             .target = target,
@@ -136,6 +144,9 @@ pub fn build(b: *std.Build) void {
 
     if (needs_pic) {
         cflags_list.append(b.allocator, "-fPIC") catch unreachable;
+    }
+    if (!use_external_zstd) {
+        cflags_list.append(b.allocator, "-DZSTD_DISABLE_ASM") catch unreachable;
     }
 
     const cflags_slice = cflags_list.toOwnedSlice(b.allocator) catch unreachable;
@@ -180,6 +191,37 @@ pub fn build(b: *std.Build) void {
         "lib/handler/compress/brotli.c",
     };
     const brotli_sources = if (use_external_brotli) &brotli_sources_external else &brotli_sources_vendored;
+
+    const zstd_sources_external = [_][]const u8{};
+    const zstd_sources_vendored = [_][]const u8{
+        "deps/zstd/lib/common/debug.c",
+        "deps/zstd/lib/common/entropy_common.c",
+        "deps/zstd/lib/common/error_private.c",
+        "deps/zstd/lib/common/fse_decompress.c",
+        "deps/zstd/lib/common/pool.c",
+        "deps/zstd/lib/common/threading.c",
+        "deps/zstd/lib/common/xxhash.c",
+        "deps/zstd/lib/common/zstd_common.c",
+        "deps/zstd/lib/compress/fse_compress.c",
+        "deps/zstd/lib/compress/hist.c",
+        "deps/zstd/lib/compress/huf_compress.c",
+        "deps/zstd/lib/compress/zstd_compress.c",
+        "deps/zstd/lib/compress/zstd_compress_literals.c",
+        "deps/zstd/lib/compress/zstd_compress_sequences.c",
+        "deps/zstd/lib/compress/zstd_compress_superblock.c",
+        "deps/zstd/lib/compress/zstd_double_fast.c",
+        "deps/zstd/lib/compress/zstd_fast.c",
+        "deps/zstd/lib/compress/zstd_lazy.c",
+        "deps/zstd/lib/compress/zstd_ldm.c",
+        "deps/zstd/lib/compress/zstdmt_compress.c",
+        "deps/zstd/lib/compress/zstd_opt.c",
+        "deps/zstd/lib/compress/zstd_preSplit.c",
+        "deps/zstd/lib/decompress/huf_decompress.c",
+        "deps/zstd/lib/decompress/zstd_ddict.c",
+        "deps/zstd/lib/decompress/zstd_decompress_block.c",
+        "deps/zstd/lib/decompress/zstd_decompress.c",
+    };
+    const zstd_sources = if (use_external_zstd) &zstd_sources_external else &zstd_sources_vendored;
 
     const lib_sources = [_][]const u8{
         "deps/cloexec/cloexec.c",
@@ -263,6 +305,7 @@ pub fn build(b: *std.Build) void {
         "lib/handler/access_log.c",
         "lib/handler/compress.c",
         "lib/handler/compress/gzip.c",
+        "lib/handler/compress/zstd.c",
         "lib/handler/errordoc.c",
         "lib/handler/expires.c",
         "lib/handler/fastcgi.c",
@@ -321,6 +364,9 @@ pub fn build(b: *std.Build) void {
         h2o.addCSourceFile(.{ .file = h2o_dep.path(src), .flags = cflags_slice });
     }
     for (brotli_sources) |src| {
+        h2o.addCSourceFile(.{ .file = h2o_dep.path(src), .flags = cflags_slice });
+    }
+    for (zstd_sources) |src| {
         h2o.addCSourceFile(.{ .file = h2o_dep.path(src), .flags = cflags_slice });
     }
     for (lib_sources) |src| {
