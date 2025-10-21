@@ -22,7 +22,13 @@ h2o features explicitly excluded:
 - redis integration
 - libuv
 
-[h2o]: https://h2o.examp1e.net/
+
+Supported targets
+
+- linux x86_64
+- linux aarch64
+- macos x86_64
+- macos aarch64
 
 
 ## Quick start
@@ -38,8 +44,6 @@ You need the following installed:
 - Perl (for an h2o build step)
 
 If you have nix you can use the dev shell provided by the flake in this repo.
-
-[zig]: https://ziglang.org/
 
 
 ## Use as a dependency
@@ -113,17 +117,27 @@ The SDK must contain `usr/include` with macOS system headers. Without this, cros
 
 **Note**: Cross-compilation to macOS from macOS does not require `APPLE_SDK_PATH` as the system SDK is used automatically.
 
-## Notes
+## Hacking on H2O
 
-Supported targets
+This project also serves as a reproducible dev environment for h2o thanks to the nix flake
 
-- linux x86_64
-- linux aarch64
-- macos x86_64
-- macos aarch64
+Simply activate the nix devshell then:
+
+``` bash
+git clone https://github.com/h2o/h2o.git h2o
+cd h2o
+cmake -B build -S .  -DDISABLE_LIBUV=ON -DWITH_MRUBY=OFF
+cmake --build build -j$(nproc)
+cmake --build build --target check
+```
+
 
 
 ## License: MIT License
 
 Copyright © 2025 Casey Link <casey@outskirtslabs.com>
 Distributed under the [MIT](https://spdx.org/licenses/MIT.html).
+
+
+[h2o]: https://h2o.examp1e.net/
+[zig]: https://ziglang.org/

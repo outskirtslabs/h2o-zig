@@ -48,9 +48,44 @@
         in
         {
           packages = [
-            pkgs.git
-            pkgs.perl
+            # This is all we need for the zig build
             zigpkgs."0.15.2"
+            pkgs.git
+            #pkgs.perl540
+
+            # H2O build dependencies
+            # we need these when hacking on h2o with its original cmake build system
+            pkgs.curl
+            pkgs.cmake
+            pkgs.ninja
+            pkgs.pkg-config
+            pkgs.makeWrapper
+            pkgs.brotli
+            pkgs.openssl
+            pkgs.libcap
+            pkgs.libuv
+            pkgs.zlib
+            pkgs.wslay
+            pkgs.bison
+            pkgs.ruby
+            pkgs.liburing
+            pkgs.zstd
+            (pkgs.perl540.withPackages (ps: [
+              ps.IOSocketSSL
+              ps.IOAsyncSSL
+              ps.ListAllUtils
+              ps.ListMoreUtils
+              ps.TestTCP
+              ps.NetDNS
+              ps.PathTiny
+              ps.ProtocolHTTP2
+              ps.ScopeGuard
+              ps.Plack
+              ps.Starlet
+              ps.JSON
+              ps.TestException
+              ps.TestRequires
+            ]))
           ];
           env.APPLE_SDK_PATH = "${apple-sdk}";
           env.ZIG_GLOBAL_CACHE_DIR = ".zig-cache-global";
