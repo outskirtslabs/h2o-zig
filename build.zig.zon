@@ -8,6 +8,10 @@
             .url = "https://github.com/Ramblurr/h2o/archive/a0eb5c98c7ef1b84be93b8868303c05dddbba264.tar.gz",
             .hash = "N-V-__8AAKa7KQRLADl-bUQ5M67yVeG9tskwe-AmpfwMNdwu",
         },
+        .wslay = .{
+            .url = "https://github.com/tatsuhiro-t/wslay/archive/refs/tags/release-1.1.1.tar.gz",
+            .hash = "N-V-__8AADdLBADNETOk9pvYZ-k7F8a08-U43YCrYSlxu621",
+        },
         .openssl = .{
             .url = "git+https://github.com/dzfrias/openssl-zig.git#2fbf20e414d6e09f1e1a30a5a831cf4aad87a2b6",
             .hash = "openssl-3.4.0-YymhPpDhAABAHYWqHr3POORyDXLqD_UhTTN6sMfxcHdl",
