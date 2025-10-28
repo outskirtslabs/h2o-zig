@@ -135,9 +135,23 @@ cmake --build build --target check
 
 ## License: MIT License
 
+h2o-zig is distributed under the [MIT](https://spdx.org/licenses/MIT.html).
+
 Copyright © 2025 Casey Link <casey@outskirtslabs.com>
-Distributed under the [MIT](https://spdx.org/licenses/MIT.html).
+
+Binary distributions (JAR files on Clojars and GitHub releases) may bundle the following third-party projects:
+
+- [h2o](https://github.com/h2o/h2o) is licensed under the MIT License and copyright [DeNA Co., Ltd.](http://dena.com/), [Kazuho Oku](https://github.com/kazuho/), and contributors.
+
+- [brotli](https://github.com/google/brotli) is licensed under the MIT License and copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors.
+
+- [zstd](https://github.com/facebook/zstd) is licensed under the BSD License and copyright (c) Meta Platforms, Inc.
+
+- [OpenSSL](https://github.com/openssl/openssl) is licensed under the Apache 2.0 License and copyright (c) 1998-2025 The OpenSSL Project Authors, and copyright (c) 1995-1998 Eric A. Young, Tim J. Hudson.
+
+- [BoringSSL](https://github.com/google/boringssl) is licensed under the Apache 2.0 License and copyright [a bunch of folks](https://github.com/google/boringssl/blob/58da9b0d721fd807279f4e3898741c92cf43bdbd/AUTHORS#)
 
 
 [h2o]: https://h2o.examp1e.net/
 [zig]: https://ziglang.org/
+
