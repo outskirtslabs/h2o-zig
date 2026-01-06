@@ -5,8 +5,8 @@
 
     .dependencies = .{
         .h2o = .{
-            .url = "https://github.com/Ramblurr/h2o/archive/a0eb5c98c7ef1b84be93b8868303c05dddbba264.tar.gz",
-            .hash = "N-V-__8AAKa7KQRLADl-bUQ5M67yVeG9tskwe-AmpfwMNdwu",
+            .url = "git+https://github.com/ramblurr/h2o.git?ref=feat/zstd#e5f0af7022f53f55737161768ee6f0d50642c7dc",
+            .hash = "N-V-__8AAIHYKQSuE8XGmTWitEUtAk3P1zFDW2mBmjZ4wunT",
         },
         .wslay = .{
             .url = "https://github.com/tatsuhiro-t/wslay/archive/refs/tags/release-1.1.1.tar.gz",
