@@ -242,7 +242,7 @@ pub fn build(b: *std.Build) void {
     // undefine __gnu_linux__ because Zig defines it with musl libc. h2o's musl
     // support (PR #3118) uses `!(defined(_GNU_SOURCE) && defined(__gnu_linux__))`
     // to detect musl, so we must undefine __gnu_linux__ for the detection to work.
-    var cflags_list = std.ArrayList([]const u8).initCapacity(b.allocator, base_cflags.len + 3) catch unreachable;
+    var cflags_list = std.ArrayList([]const u8).initCapacity(b.allocator, base_cflags.len + 5) catch unreachable;
     defer cflags_list.deinit(b.allocator);
 
     cflags_list.appendSlice(b.allocator, &base_cflags) catch unreachable;
@@ -266,14 +266,8 @@ pub fn build(b: *std.Build) void {
 
     // Some h2o files have code that is technically UB but works in practice.
     // Zig's strict sanitizer catches these, so we disable sanitizers for them:
-    // - lib/http3/common.c: misaligned cmsghdr access (uint8_t ttl precedes controlbuf)
-    //   https://github.com/h2o/h2o/issues/3540
     // - lib/http3/qpack.c: &entries[0] when entries may be NULL (null pointer dereference in subscript)
-    var cflags_no_sanitize_align = std.ArrayList([]const u8).initCapacity(b.allocator, cflags_slice.len + 2) catch unreachable;
-    cflags_no_sanitize_align.appendSlice(b.allocator, cflags_slice) catch unreachable;
-    cflags_no_sanitize_align.append(b.allocator, "-fno-sanitize=alignment") catch unreachable;
-    const cflags_no_sanitize_align_slice = cflags_no_sanitize_align.toOwnedSlice(b.allocator) catch unreachable;
-
+    //   https://github.com/h2o/h2o/issues/3546
     // For qpack.c we also need to disable null pointer checks
     var cflags_no_sanitize_null = std.ArrayList([]const u8).initCapacity(b.allocator, cflags_slice.len + 2) catch unreachable;
     cflags_no_sanitize_null.appendSlice(b.allocator, cflags_slice) catch unreachable;
@@ -485,6 +479,7 @@ pub fn build(b: *std.Build) void {
         "lib/http2/stream.c",
         "lib/http2/http2_debug_state.c",
         "lib/http3/frame.c",
+        "lib/http3/common.c",
         "lib/http3/server.c",
         "lib/websocket.c",
     };
@@ -502,8 +497,6 @@ pub fn build(b: *std.Build) void {
         h2o.addCSourceFile(.{ .file = h2o_dep.path(src), .flags = cflags_slice });
     }
 
-    // lib/http3/common.c needs -fno-sanitize=alignment due to misaligned cmsghdr access
-    h2o.addCSourceFile(.{ .file = h2o_dep.path("lib/http3/common.c"), .flags = cflags_no_sanitize_align_slice });
     // lib/http3/qpack.c needs -fno-sanitize=null due to &entries[0] access when entries is NULL
     // (technically UB but works in practice, Zig's sanitizer catches it)
     h2o.addCSourceFile(.{ .file = h2o_dep.path("lib/http3/qpack.c"), .flags = cflags_no_sanitize_null_slice });
