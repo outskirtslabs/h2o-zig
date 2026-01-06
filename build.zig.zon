@@ -18,8 +18,8 @@
             .lazy = true,
         },
         .zlib = .{
-            .url = "git+https://github.com/Ramblurr/zlib.git#c93c77f376b9ef61b0c15b991676c5454ca820a8",
-            .hash = "zlib-1.3.1-ZZQ7lcMNAADKpMLCgGz0ZViLit-1BmPza9I1-Pw61LKj",
+            .url = "git+https://github.com/allyourcodebase/zlib.git#3599c16d41dbe749ae51b0ff7ab864c61adc779a",
+            .hash = "zlib-1.3.1-ZZQ7lc8NAABUbHzDe_cSWboCqMbrLkVwvFkKnojgeiT2",
         },
         .zstd = .{
             .url = "git+https://github.com/allyourcodebase/zstd.git#01327d49cbc56dc24c20a167bb0055d7fc23de84",
@@ -27,8 +27,8 @@
             .lazy = true,
         },
         .boringssl = .{
-            .url = "git+https://github.com/Ramblurr/boringssl.git#7473d0f55612bf710f132217f8f785676ad2ce2b",
-            .hash = "boringssl-0.20250514.0-EhtkNRjfAgBTl-8Mlph63-asaonR2py9B8HcBh7eMZm1",
+            .url = "git+https://github.com/LukasKastern/boringssl.git#a7da2aeefdd7cf59ca6ec12966856bc11c5e2e77",
+            .hash = "boringssl-0.20250514.0-EhtkNU7fAgBMQ-xnS5MFX_HmCcVhPK7wzZtuYfnj3KTD",
             .lazy = true,
         },
         .brotli_build = .{
