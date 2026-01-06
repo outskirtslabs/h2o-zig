@@ -2,3 +2,4 @@
 .zig-cache
 .zig-cache-global/
 zig-out
+libaegis-src/

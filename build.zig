@@ -95,6 +95,7 @@ pub fn build(b: *std.Build) void {
     const use_boringssl = b.option(bool, "use-boringssl", "Use BoringSSL instead of OpenSSL (default: true)") orelse true;
     const use_external_brotli = b.option(bool, "use-external-brotli", "Use external brotli Zig dependency instead of vendored sources (default: true)") orelse true;
     const use_external_zstd = b.option(bool, "use-external-zstd", "Use external zstd Zig dependency instead of vendored sources (default: true)") orelse true;
+    const use_aegis = b.option(bool, "use-aegis", "Enable AEGIS AEAD ciphers via libaegis (default: false)") orelse false;
 
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
@@ -212,6 +213,16 @@ pub fn build(b: *std.Build) void {
             h2o.linkLibrary(brotli.artifact("brotli_lib"));
         }
     }
+    if (use_aegis) {
+        if (b.lazyDependency("libaegis", .{
+            .target = target,
+        })) |libaegis| {
+            const aegis_lib = libaegis.artifact("aegis");
+            h2o.linkLibrary(aegis_lib);
+            // Add include path directly from libaegis source for <aegis.h>
+            h2o.addIncludePath(libaegis.path("src/include"));
+        }
+    }
 
     h2o.linkLibrary(wslay.lib);
     b.installArtifact(wslay.lib);
@@ -246,6 +257,9 @@ pub fn build(b: *std.Build) void {
     }
     if (!use_external_zstd) {
         cflags_list.append(b.allocator, "-DZSTD_DISABLE_ASM") catch unreachable;
+    }
+    if (use_aegis) {
+        cflags_list.append(b.allocator, "-DPTLS_HAVE_AEGIS") catch unreachable;
     }
 
     const cflags_slice = cflags_list.toOwnedSlice(b.allocator) catch unreachable;

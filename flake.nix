@@ -35,7 +35,7 @@
             name = "apple-sdk_15.2";
             src = pkgs.fetchzip {
               url = "https://github.com/joseluisq/macosx-sdks/releases/download/15.2/MacOSX15.2.sdk.tar.xz";
-              sha256 = "sha256:0fgj0pvjclq2pfsq3f3wjj39906xyj6bsgx1da933wyc918p4zi3";
+              hash = "sha256:0fgj0pvjclq2pfsq3f3wjj39906xyj6bsgx1da933wyc918p4zi3";
             };
             phases = [ "installPhase" ];
             installPhase = ''
@@ -44,13 +44,27 @@
               ls "$out"
             '';
           };
-
+        libaegis =
+          pkgs:
+          pkgs.stdenv.mkDerivation {
+            pname = "libaegis";
+            version = "0.9.0";
+            src = pkgs.fetchFromGitHub {
+              owner = "aegis-aead";
+              repo = "libaegis";
+              rev = "0.9.0";
+              hash = "sha256-+Uilyqn/M9IjQ9Qa8fsiYuEIG91WkgziMrHcXJ9/q4E=";
+            };
+            nativeBuildInputs = [ pkgs.cmake ];
+            cmakeFlags = [ "-DCMAKE_INSTALL_PREFIX=${placeholder "out"}" ];
+          };
       };
       devShell =
         pkgs:
         let
           zigpkgs = zig.packages.${pkgs.system};
           apple-sdk = (self.packages.${pkgs.system}.apple-sdk);
+          libaegis = (self.packages.${pkgs.system}.libaegis);
           # Libraries needed for h2o cmake build
           libs = [
             pkgs.zlib
@@ -63,6 +77,7 @@
             pkgs.wslay
             pkgs.bison
             pkgs.ruby
+            libaegis
           ];
           # Get .dev output if available, otherwise main output (for pkgconfig)
           getDev = lib: if lib ? dev then lib.dev else lib;
@@ -119,6 +134,14 @@
             {
               name = "PKG_CONFIG_PATH";
               value = pkgs.lib.makeSearchPath "lib/pkgconfig" (map getDev libs);
+            }
+            {
+              name = "CMAKE_PREFIX_PATH";
+              value = "${libaegis}";
+            }
+            {
+              name = "AEGIS_INCLUDE_DIR";
+              value = "${libaegis}/include";
             }
           ];
         };

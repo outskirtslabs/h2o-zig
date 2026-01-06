@@ -131,7 +131,24 @@ cmake --build build -j$(nproc)
 cmake --build build --target check
 ```
 
+### Building picotls (with AEGIS support)
 
+To build and test picotls (the TLS library used by h2o) with AEGIS cipher support:
+
+``` bash
+git clone https://github.com/h2o/picotls.git picotls
+cd picotls
+nix develop ../   # enter devshell from picotls directory
+
+cmake -B build -S . \
+  -DWITH_AEGIS=ON \
+  -DCMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH \
+  -DAEGIS_INCLUDE_DIR=$AEGIS_INCLUDE_DIR
+
+cmake --build build -j$(nproc)
+
+./build/test-openssl.t
+```
 
 ## License: MIT License
 
