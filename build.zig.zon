@@ -13,8 +13,8 @@
             .hash = "N-V-__8AADdLBADNETOk9pvYZ-k7F8a08-U43YCrYSlxu621",
         },
         .openssl = .{
-            .url = "git+https://github.com/ramblurr/openssl-zig.git?ref=update/openssl-3.6.0#b89f39f1bb8f230b448eaa5e692b5da9005ad9c7",
-            .hash = "openssl-3.6.0-YymhPg0kAQD_p6kpTbrodJ3ENoPoLzjiJlx-IqDQPoUo",
+            .url = "git+https://github.com/dzfrias/openssl-zig.git#8f9dd2791a5ec743c85e57fb1ef9c59e99c5d222",
+            .hash = "openssl-3.6.0-YymhPrUoAQCKRYLwvQUcGnmdVPu-fBBsq37GSaIx0ZMy",
             .lazy = true,
         },
         .zlib = .{
