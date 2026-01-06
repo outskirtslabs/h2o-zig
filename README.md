@@ -7,34 +7,35 @@ This is [libh2o][h2o], packaged for Zig with cross-compilation support for Linux
 
 The intended usage is for building language bindings and FFI wrappers that need to expose all h2o and SSL symbols in a final shared library.
 
-Included features:
+Included h2o features:
 
 - http 1
 - http 2
+- picotls
 - quic + http3
 - brotli
 - zstd
+- [libaegis][aegis] for [draft-irtf-cfrg-aegis-aead-18][aegis-id]
 
-h2o features explicitly excluded:
+features explicitly excluded:
 
 - mruby
 - memcached integration
 - redis integration
 - libuv
 
+Supported targets:
 
-Supported targets
-
-- linux x86_64
-- linux aarch64
-- macos x86_64
-- macos aarch64
+- `x86_64-linux`
+- `aarch64-linux`
+- `x86_64-macos`
+- `aarch64-macos`
 
 
 ## Quick start
 
 1. Install [zig][zig]
-2. `zig build`
+2. `zig build` or `zig build -Dtarget=<target>` (where `<target>` is from the above list)
 
 ## Prerequisites
 
@@ -119,7 +120,7 @@ The SDK must contain `usr/include` with macOS system headers. Without this, cros
 
 ## Hacking on H2O
 
-This project also serves as a reproducible dev environment for h2o thanks to the nix flake
+This project also serves as a reproducible dev environment for h2o thanks to the nix flake's devshell.
 
 Simply activate the nix devshell then:
 
@@ -168,7 +169,11 @@ Binary distributions (JAR files on Clojars and GitHub releases) may bundle the f
 
 - [BoringSSL](https://github.com/google/boringssl) is licensed under the Apache 2.0 License and copyright [a bunch of folks](https://github.com/google/boringssl/blob/58da9b0d721fd807279f4e3898741c92cf43bdbd/AUTHORS#)
 
+- [libaegis][aegis] is licensed under the MIT license and copyright (c) 2023-2026 Frank Denis
+
 
 [h2o]: https://h2o.examp1e.net/
 [zig]: https://ziglang.org/
 
+[aegis]: https://github.com/aegis-aead/libaegis
+[aegis-id]: https://datatracker.ietf.org/doc/draft-irtf-cfrg-aegis-aead/
