@@ -208,7 +208,6 @@ pub fn build(b: *std.Build) void {
         if (b.lazyDependency("brotli_build", .{
             .target = target,
             .optimize = optimize,
-            .pie = needs_pic,
         })) |brotli| {
             h2o.linkLibrary(brotli.artifact("brotli_lib"));
         }
