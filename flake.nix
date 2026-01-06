@@ -51,6 +51,21 @@
         let
           zigpkgs = zig.packages.${pkgs.system};
           apple-sdk = (self.packages.${pkgs.system}.apple-sdk);
+          # Libraries needed for h2o cmake build
+          libs = [
+            pkgs.zlib
+            pkgs.openssl
+            pkgs.brotli
+            pkgs.liburing
+            pkgs.zstd
+            pkgs.libcap
+            pkgs.libuv
+            pkgs.wslay
+            pkgs.bison
+            pkgs.ruby
+          ];
+          # Get .dev output if available, otherwise main output (for pkgconfig)
+          getDev = lib: if lib ? dev then lib.dev else lib;
         in
         pkgs.devshell.mkShell {
           imports = [
@@ -65,24 +80,12 @@
             zigpkgs."0.15.2"
             pkgs.git
 
-            #pkgs.perl540
-            # H2O build dependencies
-            # we need these when hacking on h2o with its original cmake build system
+            # H2O build dependencies (cmake build system)
+            pkgs.pkg-config
             pkgs.curl
             pkgs.cmake
             pkgs.ninja
-            pkgs.pkg-config
             pkgs.makeWrapper
-            pkgs.brotli
-            pkgs.openssl
-            pkgs.libcap
-            pkgs.libuv
-            pkgs.zlib
-            pkgs.wslay
-            pkgs.bison
-            pkgs.ruby
-            pkgs.liburing
-            pkgs.zstd
             (pkgs.perl540.withPackages (ps: [
               ps.IOSocketSSL
               ps.IOAsyncSSL
@@ -99,7 +102,10 @@
               ps.TestException
               ps.TestRequires
             ]))
-          ];
+          ]
+          # Add both main (libraries) and .dev (headers) outputs for CMake
+          ++ libs
+          ++ (map getDev libs);
 
           env = [
             {
@@ -109,6 +115,10 @@
             {
               name = "ZIG_GLOBAL_CACHE_DIR";
               value = ".zig-cache-global";
+            }
+            {
+              name = "PKG_CONFIG_PATH";
+              value = pkgs.lib.makeSearchPath "lib/pkgconfig" (map getDev libs);
             }
           ];
         };
