@@ -161,6 +161,7 @@ pub fn build(b: *std.Build) void {
         if (b.lazyDependency("boringssl", .{
             .target = target,
             .optimize = optimize,
+            .pie = needs_pic,
         })) |boringssl| {
             h2o.linkLibrary(boringssl.artifact("bcm"));
             h2o.linkLibrary(boringssl.artifact("crypto"));
@@ -208,6 +209,7 @@ pub fn build(b: *std.Build) void {
         if (b.lazyDependency("brotli_build", .{
             .target = target,
             .optimize = optimize,
+            .pie = needs_pic,
         })) |brotli| {
             h2o.linkLibrary(brotli.artifact("brotli_lib"));
         }

@@ -137,8 +137,8 @@ cmake --build build --target check
 To build and test picotls (the TLS library used by h2o) with AEGIS cipher support:
 
 ``` bash
-git clone https://github.com/h2o/picotls.git picotls
-cd picotls
+git clone https://github.com/h2o/picotls.git vendor/picotls
+cd vendor/picotls
 nix develop ../   # enter devshell from picotls directory
 
 cmake -B build -S . \
