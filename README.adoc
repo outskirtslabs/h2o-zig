@@ -1,0 +1,220 @@
+____
+libh2o packaged for Zig with cross-compilation support for Linux and
+macOS.
+____
+
+http://docs.outskirtslabs.com/h2o-zig/next/[image:https://img.shields.io/badge/doc-outskirtslabs-orange.svg[doc]]
+http://docs.outskirtslabs.com/open-source-vital-signs#maturing[image:https://img.shields.io/badge/status-maturing-blue.svg[status:
+maturing]]
+
+This is https://h2o.examp1e.net/[libh2o], packaged for Zig with
+cross-compilation support for Linux and macos.
+
+* all dependencies are statically linked into the output
+* output is a static library (`.a`) for embedding into other projects
+
+The intended usage is for building language bindings and FFI wrappers
+that need to expose all h2o and SSL symbols in a final shared library.
+
+Included h2o features:
+
+* http 1
+* http 2
+* picotls
+* quic {plus} http3
+* brotli
+* zstd
+* https://github.com/aegis-aead/libaegis[libaegis] for
+https://datatracker.ietf.org/doc/draft-irtf-cfrg-aegis-aead/[draft-irtf-cfrg-aegis-aead-18]
+
+features explicitly excluded:
+
+* mruby
+* memcached integration
+* redis integration
+* libuv
+
+Supported targets:
+
+* `x86++_++64-linux`
+* `aarch64-linux`
+* `x86++_++64-macos`
+* `aarch64-macos`
+
+Project status:
+*http://docs.outskirtslabs.com/open-source-vital-signs#maturing[Maturing]*.
+
+== Quick start
+
+[arabic]
+. Install https://ziglang.org/[zig]
+. `zig build` or `zig build -Dtarget=++<++target++>++` (where
+`++<++target++>++` is from the above list)
+
+== Documentation
+
+* http://docs.outskirtslabs.com/h2o-zig/next/[Docs]
+* http://docs.outskirtslabs.com/h2o-zig/next/api[API Reference]
+* https://github.com/outskirtslabs/h2o-zig/issues[Support via GitHub
+Issues]
+
+== Prerequisites
+
+You need the following installed:
+
+* https://ziglang.org/[Zig] 0.15.2
+* Perl (for an h2o build step)
+
+If you have nix you can use the dev shell provided by the flake in this
+repo.
+
+== Use as a dependency
+
+First, update your `build.zig.zon`:
+
+....
+zig init # if you don't have a build.zig already
+zig fetch --save git+https://github.com/outskirtslabs/h2o-zig.git
+....
+
+You can then import `h2o` in your `build.zig` with:
+
+[source,zig]
+----
+const h2o_dependency = b.dependency("h2o", .{
+    .target = target,
+    .optimize = optimize,
+});
+your_exe.linkLibrary(h2o_dependency.artifact("h2o-evloop"));
+----
+
+=== Build Options
+
+The following build-time flags are available:
+
+* `-Duse-boringssl=++<++bool++>++` - Use BoringSSL instead of OpenSSL
+(default: `true`)
+* `-Duse-external-brotli=++<++bool++>++` - Use external brotli
+dependency instead of vendored sources (default: `true`). The vendored
+one is from upstream h2o and is a much older version than the external
+one.
+
+Example usage:
+
+[source,zig]
+----
+const h2o_dependency = b.dependency("h2o", .{
+    .target = target,
+    .optimize = optimize,
+    .@"use-boringssl" = true, // default
+});
+your_exe.linkLibrary(h2o_dependency.artifact("h2o-evloop"));
+----
+
+Or via command line when building:
+
+[source,bash]
+----
+zig build -Duse-boringssl=true
+----
+
+=== Cross-Compilation to macOS
+
+When cross-compiling from Linux to macOS targets (x86++_++64-macos or
+aarch64-macos), the build requires the `APPLE++_++SDK++_++PATH`
+environment variable to be set. This points to the macOS SDK that
+provides system headers and libraries.
+
+*Using Nix (Recommended)*
+
+The provided nix flake automatically sets up `APPLE++_++SDK++_++PATH`
+when you enter the development shell:
+
+[source,bash]
+----
+nix develop
+zig build -Dtarget=aarch64-macos
+zig build -Dtarget=x86_64-macos
+----
+
+*Manual Setup*
+
+If not using nix, you'll need to obtain a macOS SDK and set the
+environment variable:
+
+[source,bash]
+----
+export APPLE_SDK_PATH=/path/to/MacOSX.sdk
+zig build -Dtarget=x86_64-macos
+----
+
+The SDK must contain `usr/include` with macOS system headers. Without
+this, cross-compilation to macOS will fail with an error about the
+missing `APPLE++_++SDK++_++PATH` environment variable.
+
+*Note*: Cross-compilation to macOS from macOS does not require
+`APPLE++_++SDK++_++PATH` as the system SDK is used automatically.
+
+== Hacking on H2O
+
+This project also serves as a reproducible dev environment for h2o
+thanks to the nix flake's devshell.
+
+Simply activate the nix devshell then:
+
+[source,bash]
+----
+git clone https://github.com/h2o/h2o.git h2o
+cd h2o
+cmake -B build -S .  -DDISABLE_LIBUV=ON -DWITH_MRUBY=OFF
+cmake --build build -j$(nproc)
+cmake --build build --target check
+----
+
+=== Building picotls (with AEGIS support)
+
+To build and test picotls (the TLS library used by h2o) with AEGIS
+cipher support:
+
+[source,bash]
+----
+git clone https://github.com/h2o/picotls.git vendor/picotls
+cd vendor/picotls
+nix develop ../   # enter devshell from picotls directory
+
+cmake -B build -S . \
+  -DWITH_AEGIS=ON \
+  -DCMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH \
+  -DAEGIS_INCLUDE_DIR=$AEGIS_INCLUDE_DIR
+
+cmake --build build -j$(nproc)
+
+./build/test-openssl.t
+----
+
+== License: MIT License
+
+h2o-zig is distributed under the
+https://spdx.org/licenses/MIT.html[MIT].
+
+Copyright © 2025 Casey Link casey@outskirtslabs.com
+
+Binary distributions (JAR files on Clojars and GitHub releases) may
+bundle the following third-party projects:
+
+* https://github.com/h2o/h2o[h2o] is licensed under the MIT License and
+copyright http://dena.com/[DeNA Co.&#44; Ltd.],
+https://github.com/kazuho/[Kazuho Oku], and contributors.
+* https://github.com/google/brotli[brotli] is licensed under the MIT
+License and copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors.
+* https://github.com/facebook/zstd[zstd] is licensed under the BSD
+License and copyright (c) Meta Platforms, Inc.
+* https://github.com/openssl/openssl[OpenSSL] is licensed under the
+Apache 2.0 License and copyright (c) 1998-2025 The OpenSSL Project
+Authors, and copyright (c) 1995-1998 Eric A. Young, Tim J. Hudson.
+* https://github.com/google/boringssl[BoringSSL] is licensed under the
+Apache 2.0 License and copyright
+https://github.com/google/boringssl/blob/58da9b0d721fd807279f4e3898741c92cf43bdbd/AUTHORS#[a
+bunch of folks]
+* https://github.com/aegis-aead/libaegis[libaegis] is licensed under the
+MIT license and copyright (c) 2023-2026 Frank Denis

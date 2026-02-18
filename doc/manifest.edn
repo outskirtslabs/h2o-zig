@@ -1,0 +1,17 @@
+{:manifest/version 1,
+ :project
+ {:id "h2o-zig",
+  :coord "outskirtslabs/h2o-zig",
+  :description "libh2o packaged for Zig with cross-compilation support for Linux and macOS",
+  :license "MIT",
+  :platforms [:linux :macos],
+  :status :maturing,
+  :created "2025-10-20",
+  :version "0.0.1"},
+ :docs
+ {:component "h2o-zig",
+  :title "h2o-zig",
+  :version "next",
+  :prerelease true,
+  :start-path "doc"},
+ :repo {:url "https://github.com/outskirtslabs/h2o-zig"}}

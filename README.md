@@ -1,5 +1,10 @@
 # libh2o for zig
 
+> libh2o packaged for Zig with cross-compilation support for Linux and macOS.
+
+[![doc](https://img.shields.io/badge/doc-outskirtslabs-orange.svg)](http://docs.outskirtslabs.com/h2o-zig/next/)
+[![status: maturing](https://img.shields.io/badge/status-maturing-blue.svg)](http://docs.outskirtslabs.com/open-source-vital-signs#maturing)
+
 This is [libh2o][h2o], packaged for Zig with cross-compilation support for Linux and macos.
 
 - all dependencies are statically linked into the output
@@ -31,11 +36,18 @@ Supported targets:
 - `x86_64-macos`
 - `aarch64-macos`
 
+Project status: **[Maturing](http://docs.outskirtslabs.com/open-source-vital-signs#maturing)**.
 
 ## Quick start
 
 1. Install [zig][zig]
 2. `zig build` or `zig build -Dtarget=<target>` (where `<target>` is from the above list)
+
+## Documentation
+
+- [Docs](http://docs.outskirtslabs.com/h2o-zig/next/)
+- [API Reference](http://docs.outskirtslabs.com/h2o-zig/next/api)
+- [Support via GitHub Issues](https://github.com/outskirtslabs/h2o-zig/issues)
 
 ## Prerequisites
 
