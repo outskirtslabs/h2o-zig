@@ -1,5 +1,4 @@
-= libh2o for zig
-
+= h2o-zig
 ____
 libh2o packaged for Zig with cross-compilation support for Linux and
 macOS.
