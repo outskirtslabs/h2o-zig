@@ -59,6 +59,7 @@
             nativeBuildInputs = [ pkgs.cmake ];
             cmakeFlags = [ "-DCMAKE_INSTALL_PREFIX=${placeholder "out"}" ];
           };
+        h2o-zig = pkgs: pkgs.callPackage ./pkgs/h2o-zig.nix { inherit zig; };
       };
       devShell =
         pkgs:
