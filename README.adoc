@@ -5,8 +5,8 @@ libh2o packaged for Zig with cross-compilation support for Linux and
 macOS.
 ____
 
-http://docs.outskirtslabs.com/h2o-zig/next/[image:https://img.shields.io/badge/doc-outskirtslabs-orange.svg[doc]]
-http://docs.outskirtslabs.com/open-source-vital-signs#maturing[image:https://img.shields.io/badge/status-maturing-blue.svg[status:
+https://docs.outskirtslabs.com/h2o-zig/next/[image:https://img.shields.io/badge/doc-outskirtslabs-orange.svg[doc]]
+https://docs.outskirtslabs.com/open-source-vital-signs#maturing[image:https://img.shields.io/badge/status-maturing-blue.svg[status:
 maturing]]
 
 This is https://h2o.examp1e.net/[libh2o], packaged for Zig with
@@ -44,7 +44,7 @@ Supported targets:
 * `aarch64-macos`
 
 Project status:
-*http://docs.outskirtslabs.com/open-source-vital-signs#maturing[Maturing]*.
+*https://docs.outskirtslabs.com/open-source-vital-signs#maturing[Maturing]*.
 
 == Quick start
 
@@ -55,8 +55,8 @@ Project status:
 
 == Documentation
 
-* http://docs.outskirtslabs.com/h2o-zig/next/[Docs]
-* http://docs.outskirtslabs.com/h2o-zig/next/api[API Reference]
+* https://docs.outskirtslabs.com/h2o-zig/next/[Docs]
+* https://docs.outskirtslabs.com/h2o-zig/next/api[API Reference]
 * https://github.com/outskirtslabs/h2o-zig/issues[Support via GitHub
 Issues]
 
@@ -205,7 +205,7 @@ Binary distributions (JAR files on Clojars and GitHub releases) may
 bundle the following third-party projects:
 
 * https://github.com/h2o/h2o[h2o] is licensed under the MIT License and
-copyright http://dena.com/[DeNA Co.&#44; Ltd.],
+copyright https://dena.com/[DeNA Co.&#44; Ltd.],
 https://github.com/kazuho/[Kazuho Oku], and contributors.
 * https://github.com/google/brotli[brotli] is licensed under the MIT
 License and copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors.
