@@ -8,6 +8,7 @@ ____
 https://docs.outskirtslabs.com/h2o-zig/next/[image:https://img.shields.io/badge/doc-outskirtslabs-orange.svg[doc]]
 https://docs.outskirtslabs.com/open-source-vital-signs#maturing[image:https://img.shields.io/badge/status-maturing-blue.svg[status:
 maturing]]
+image:https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fgarnix.io%2Fapi%2Fbadges%2Foutskirtslabs%2Fh2o-zig[alt=built with garnix,link=https://garnix.io/repo/outskirtslabs/h2o-zig]
 
 This is https://h2o.examp1e.net/[libh2o], packaged for Zig with
 cross-compilation support for Linux and macos.
