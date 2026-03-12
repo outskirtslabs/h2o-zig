@@ -163,12 +163,16 @@ pub fn build(b: *std.Build) void {
             .optimize = optimize,
             .pie = needs_pic,
         })) |boringssl| {
-            h2o.linkLibrary(boringssl.artifact("bcm"));
-            h2o.linkLibrary(boringssl.artifact("crypto"));
+            const bcm_artifact = boringssl.artifact("bcm");
+            const crypto_artifact = boringssl.artifact("crypto");
             const ssl_artifact = boringssl.artifact("ssl");
+            const decrepit_artifact = boringssl.artifact("decrepit");
+            h2o.linkLibrary(bcm_artifact);
+            h2o.linkLibrary(crypto_artifact);
             h2o.linkLibrary(ssl_artifact);
-            h2o.linkLibrary(boringssl.artifact("decrepit"));
+            h2o.linkLibrary(decrepit_artifact);
             h2o.addIncludePath(ssl_artifact.getEmittedIncludeTree());
+            b.installArtifact(crypto_artifact);
             b.installArtifact(ssl_artifact);
         }
     } else {

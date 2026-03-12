@@ -5,14 +5,15 @@
     devshell.url = "github:numtide/devshell";
     devenv.url = "https://flakehub.com/f/ramblurr/nix-devenv/*";
     devenv.inputs.nixpkgs.follows = "nixpkgs";
-    zig.url = "github:mitchellh/zig-overlay";
+    zig2nix.url = "github:Cloudef/zig2nix";
+    zig2nix.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs =
     inputs@{
       self,
       devenv,
       devshell,
-      zig,
+      zig2nix,
       ...
     }:
     devenv.lib.mkFlake ./. {
@@ -29,7 +30,7 @@
         devshell.overlays.default
         devenv.overlays.default
       ];
-      packages = {
+      packages = rec {
         apple-sdk =
           pkgs:
           pkgs.stdenv.mkDerivation {
@@ -59,12 +60,16 @@
             nativeBuildInputs = [ pkgs.cmake ];
             cmakeFlags = [ "-DCMAKE_INSTALL_PREFIX=${placeholder "out"}" ];
           };
-        h2o-zig = pkgs: pkgs.callPackage ./pkgs/h2o-zig.nix { inherit zig; };
+        h2o-zig = pkgs: pkgs.callPackage ./pkgs/h2o-zig.nix { inherit zig2nix; };
+        default = h2o-zig;
       };
       devShell =
         pkgs:
         let
-          zigpkgs = zig.packages.${pkgs.system};
+          zig = zig2nix.packages.${pkgs.system}."zig-0_15_2";
+          zig2nixEnv = zig2nix.outputs.zig-env.${pkgs.system} {
+            inherit zig;
+          };
           apple-sdk = (self.packages.${pkgs.system}.apple-sdk);
           libaegis = (self.packages.${pkgs.system}.libaegis);
           # Libraries needed for h2o cmake build
@@ -94,7 +99,8 @@
           ];
           packages = [
             # This is all we need for the zig build
-            zigpkgs."0.15.2"
+            zig
+            zig2nixEnv.zig2nix
             pkgs.git
 
             # H2O build dependencies (cmake build system)
