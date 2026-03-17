@@ -271,8 +271,16 @@ pub fn build(b: *std.Build) void {
 
     // Some h2o files have code that is technically UB but works in practice.
     // Zig's strict sanitizer catches these, so we disable sanitizers for them:
+    // - deps/picotls/lib/picotls.c: ReleaseSafe traps on the upstream logging
+    //   callback type mismatch
+    //   https://github.com/h2o/h2o/issues/3562
     // - lib/http3/qpack.c: &entries[0] when entries may be NULL (null pointer dereference in subscript)
     //   https://github.com/h2o/h2o/issues/3546
+    var cflags_no_sanitize_function = std.ArrayList([]const u8).initCapacity(b.allocator, cflags_slice.len + 1) catch unreachable;
+    cflags_no_sanitize_function.appendSlice(b.allocator, cflags_slice) catch unreachable;
+    cflags_no_sanitize_function.append(b.allocator, "-fno-sanitize=function") catch unreachable;
+    const cflags_no_sanitize_function_slice = cflags_no_sanitize_function.toOwnedSlice(b.allocator) catch unreachable;
+
     // For qpack.c we also need to disable null pointer checks
     var cflags_no_sanitize_null = std.ArrayList([]const u8).initCapacity(b.allocator, cflags_slice.len + 2) catch unreachable;
     cflags_no_sanitize_null.appendSlice(b.allocator, cflags_slice) catch unreachable;
@@ -379,7 +387,6 @@ pub fn build(b: *std.Build) void {
         "deps/picotls/lib/certificate_compression.c",
         "deps/picotls/lib/hpke.c",
         "deps/picotls/lib/pembase64.c",
-        "deps/picotls/lib/picotls.c",
         "deps/picotls/lib/openssl.c",
         "deps/picotls/lib/cifra/random.c",
         "deps/picotls/lib/cifra/x25519.c",
@@ -501,6 +508,8 @@ pub fn build(b: *std.Build) void {
     for (lib_sources) |src| {
         h2o.addCSourceFile(.{ .file = h2o_dep.path(src), .flags = cflags_slice });
     }
+
+    h2o.addCSourceFile(.{ .file = h2o_dep.path("deps/picotls/lib/picotls.c"), .flags = cflags_no_sanitize_function_slice });
 
     // lib/http3/qpack.c needs -fno-sanitize=null due to &entries[0] access when entries is NULL
     // (technically UB but works in practice, Zig's sanitizer catches it)
