@@ -7,7 +7,8 @@
 let
   system = stdenv.hostPlatform.system;
   root = toString ../.;
-  zig2nixEnv = zig2nix.outputs.zig-env.${system} { };
+  zig = zig2nix.packages.${system}."zig-0_15_2";
+  zig2nixEnv = zig2nix.outputs.zig-env.${system} { inherit zig; };
 in
 zig2nixEnv.package {
   pname = "h2o-zig";

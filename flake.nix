@@ -109,7 +109,7 @@
             pkgs.cmake
             pkgs.ninja
             pkgs.makeWrapper
-            (pkgs.perl540.withPackages (ps: [
+            (pkgs.perl5.withPackages (ps: [
               ps.IOSocketSSL
               ps.IOAsyncSSL
               ps.ListAllUtils
