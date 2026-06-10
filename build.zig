@@ -19,6 +19,7 @@ fn addWslay(
         .root_module = b.createModule(.{
             .target = target,
             .optimize = optimize,
+            .pic = needs_pic,
         }),
         .linkage = .static,
     });
@@ -61,11 +62,11 @@ fn addWslay(
     };
 
     for (sources) |src| {
-        wslay.addCSourceFile(.{ .file = dep.path(src), .flags = flags_slice });
+        wslay.root_module.addCSourceFile(.{ .file = dep.path(src), .flags = flags_slice });
     }
 
-    wslay.addIncludePath(dep.path("lib"));
-    wslay.addIncludePath(dep.path("lib/includes"));
+    wslay.root_module.addIncludePath(dep.path("lib"));
+    wslay.root_module.addIncludePath(dep.path("lib/includes"));
 
     const write_files = b.addWriteFiles();
     const wslayver_header = write_files.add("wslay/wslayver.h", std.fmt.comptimePrint(
@@ -77,13 +78,13 @@ fn addWslay(
         \\
     , .{WslayVersion}));
     const generated_include_dir = write_files.getDirectory();
-    wslay.addIncludePath(generated_include_dir);
+    wslay.root_module.addIncludePath(generated_include_dir);
     wslay.step.dependOn(&write_files.step);
 
     wslay.installHeader(dep.path("lib/includes/wslay/wslay.h"), "wslay/wslay.h");
     wslay.installHeader(wslayver_header, "wslay/wslayver.h");
 
-    wslay.linkLibC();
+    wslay.root_module.link_libc = true;
 
     return .{
         .lib = wslay,
@@ -118,43 +119,44 @@ pub fn build(b: *std.Build) void {
         .root_module = b.createModule(.{
             .target = target,
             .optimize = optimize,
+            .pic = needs_pic,
         }),
         .linkage = .static,
     });
 
     if (is_macos_cross) {
-        const sdk_path = b.graph.env_map.get("APPLE_SDK_PATH") orelse
+        const sdk_path = b.graph.environ_map.get("APPLE_SDK_PATH") orelse
             @panic("Cross-compiling to macOS requires APPLE_SDK_PATH environment variable");
         var sdk_include_buf: [1024]u8 = undefined;
         const sdk_include = std.fmt.bufPrint(&sdk_include_buf, "{s}/usr/include", .{sdk_path}) catch unreachable;
-        h2o.addSystemIncludePath(.{ .cwd_relative = sdk_include });
+        h2o.root_module.addSystemIncludePath(.{ .cwd_relative = sdk_include });
     }
 
-    h2o.addIncludePath(wslay_dep.path("lib/includes"));
-    h2o.addIncludePath(wslay.generated_include_dir);
+    h2o.root_module.addIncludePath(wslay_dep.path("lib/includes"));
+    h2o.root_module.addIncludePath(wslay.generated_include_dir);
 
-    h2o.addIncludePath(h2o_dep.path("include"));
-    h2o.addIncludePath(h2o_dep.path("deps/cloexec"));
+    h2o.root_module.addIncludePath(h2o_dep.path("include"));
+    h2o.root_module.addIncludePath(h2o_dep.path("deps/cloexec"));
     if (!use_external_brotli) {
-        h2o.addIncludePath(h2o_dep.path("deps/brotli/c/include"));
+        h2o.root_module.addIncludePath(h2o_dep.path("deps/brotli/c/include"));
     }
-    h2o.addIncludePath(h2o_dep.path("deps/golombset"));
-    h2o.addIncludePath(h2o_dep.path("deps/hiredis"));
-    h2o.addIncludePath(h2o_dep.path("deps/libgkc"));
-    h2o.addIncludePath(h2o_dep.path("deps/libyrmcds"));
-    h2o.addIncludePath(h2o_dep.path("deps/klib"));
-    h2o.addIncludePath(h2o_dep.path("deps/neverbleed"));
-    h2o.addIncludePath(h2o_dep.path("deps/picohttpparser"));
-    h2o.addIncludePath(h2o_dep.path("deps/picotest"));
-    h2o.addIncludePath(h2o_dep.path("deps/picotls/deps/cifra/src/ext"));
-    h2o.addIncludePath(h2o_dep.path("deps/picotls/deps/cifra/src"));
-    h2o.addIncludePath(h2o_dep.path("deps/picotls/deps/micro-ecc"));
-    h2o.addIncludePath(h2o_dep.path("deps/picotls/include"));
-    h2o.addIncludePath(h2o_dep.path("deps/quicly/include"));
-    h2o.addIncludePath(h2o_dep.path("deps/yaml/include"));
-    h2o.addIncludePath(h2o_dep.path("deps/yoml"));
+    h2o.root_module.addIncludePath(h2o_dep.path("deps/golombset"));
+    h2o.root_module.addIncludePath(h2o_dep.path("deps/hiredis"));
+    h2o.root_module.addIncludePath(h2o_dep.path("deps/libgkc"));
+    h2o.root_module.addIncludePath(h2o_dep.path("deps/libyrmcds"));
+    h2o.root_module.addIncludePath(h2o_dep.path("deps/klib"));
+    h2o.root_module.addIncludePath(h2o_dep.path("deps/neverbleed"));
+    h2o.root_module.addIncludePath(h2o_dep.path("deps/picohttpparser"));
+    h2o.root_module.addIncludePath(h2o_dep.path("deps/picotest"));
+    h2o.root_module.addIncludePath(h2o_dep.path("deps/picotls/deps/cifra/src/ext"));
+    h2o.root_module.addIncludePath(h2o_dep.path("deps/picotls/deps/cifra/src"));
+    h2o.root_module.addIncludePath(h2o_dep.path("deps/picotls/deps/micro-ecc"));
+    h2o.root_module.addIncludePath(h2o_dep.path("deps/picotls/include"));
+    h2o.root_module.addIncludePath(h2o_dep.path("deps/quicly/include"));
+    h2o.root_module.addIncludePath(h2o_dep.path("deps/yaml/include"));
+    h2o.root_module.addIncludePath(h2o_dep.path("deps/yoml"));
     if (!use_external_zstd) {
-        h2o.addIncludePath(h2o_dep.path("deps/zstd/lib"));
+        h2o.root_module.addIncludePath(h2o_dep.path("deps/zstd/lib"));
     }
 
     if (use_boringssl) {
@@ -167,11 +169,11 @@ pub fn build(b: *std.Build) void {
             const crypto_artifact = boringssl.artifact("crypto");
             const ssl_artifact = boringssl.artifact("ssl");
             const decrepit_artifact = boringssl.artifact("decrepit");
-            h2o.linkLibrary(bcm_artifact);
-            h2o.linkLibrary(crypto_artifact);
-            h2o.linkLibrary(ssl_artifact);
-            h2o.linkLibrary(decrepit_artifact);
-            h2o.addIncludePath(ssl_artifact.getEmittedIncludeTree());
+            h2o.root_module.linkLibrary(bcm_artifact);
+            h2o.root_module.linkLibrary(crypto_artifact);
+            h2o.root_module.linkLibrary(ssl_artifact);
+            h2o.root_module.linkLibrary(decrepit_artifact);
+            h2o.root_module.addIncludePath(ssl_artifact.getEmittedIncludeTree());
             b.installArtifact(crypto_artifact);
             b.installArtifact(ssl_artifact);
         }
@@ -183,30 +185,30 @@ pub fn build(b: *std.Build) void {
             const ssl_artifact = openssl.artifact("ssl");
             const crypto_artifact = openssl.artifact("crypto");
             if (is_macos_cross) {
-                const sdk_path = b.graph.env_map.get("APPLE_SDK_PATH") orelse
+                const sdk_path = b.graph.environ_map.get("APPLE_SDK_PATH") orelse
                     @panic("Cross-compiling to macOS requires APPLE_SDK_PATH environment variable");
                 var sdk_include_buf: [1024]u8 = undefined;
                 const sdk_include = std.fmt.bufPrint(&sdk_include_buf, "{s}/usr/include", .{sdk_path}) catch unreachable;
-                ssl_artifact.addSystemIncludePath(.{ .cwd_relative = sdk_include });
-                crypto_artifact.addSystemIncludePath(.{ .cwd_relative = sdk_include });
+                ssl_artifact.root_module.addSystemIncludePath(.{ .cwd_relative = sdk_include });
+                crypto_artifact.root_module.addSystemIncludePath(.{ .cwd_relative = sdk_include });
             }
-            h2o.linkLibrary(ssl_artifact);
-            h2o.linkLibrary(crypto_artifact);
-            h2o.addIncludePath(ssl_artifact.getEmittedIncludeTree());
-            h2o.addIncludePath(crypto_artifact.getEmittedIncludeTree());
+            h2o.root_module.linkLibrary(ssl_artifact);
+            h2o.root_module.linkLibrary(crypto_artifact);
+            h2o.root_module.addIncludePath(ssl_artifact.getEmittedIncludeTree());
+            h2o.root_module.addIncludePath(crypto_artifact.getEmittedIncludeTree());
             b.installArtifact(ssl_artifact);
             b.installArtifact(crypto_artifact);
         }
     }
-    h2o.linkLibrary(zlib.artifact("z"));
+    h2o.root_module.linkLibrary(zlib.artifact("z"));
     if (use_external_zstd) {
         if (b.lazyDependency("zstd", .{
             .target = target,
             .optimize = optimize,
             .pie = needs_pic,
         })) |zstd| {
-            h2o.linkLibrary(zstd.artifact("zstd"));
-            h2o.addIncludePath(zstd.artifact("zstd").getEmittedIncludeTree());
+            h2o.root_module.linkLibrary(zstd.artifact("zstd"));
+            h2o.root_module.addIncludePath(zstd.artifact("zstd").getEmittedIncludeTree());
         }
     }
     if (use_external_brotli) {
@@ -215,7 +217,7 @@ pub fn build(b: *std.Build) void {
             .optimize = optimize,
             .pie = needs_pic,
         })) |brotli| {
-            h2o.linkLibrary(brotli.artifact("brotli_lib"));
+            h2o.root_module.linkLibrary(brotli.artifact("brotli_lib"));
         }
     }
     if (use_aegis) {
@@ -223,13 +225,13 @@ pub fn build(b: *std.Build) void {
             .target = target,
         })) |libaegis| {
             const aegis_lib = libaegis.artifact("aegis");
-            h2o.linkLibrary(aegis_lib);
+            h2o.root_module.linkLibrary(aegis_lib);
             // Add include path directly from libaegis source for <aegis.h>
-            h2o.addIncludePath(libaegis.path("src/include"));
+            h2o.root_module.addIncludePath(libaegis.path("src/include"));
         }
     }
 
-    h2o.linkLibrary(wslay.lib);
+    h2o.root_module.linkLibrary(wslay.lib);
     b.installArtifact(wslay.lib);
 
     const base_cflags = [_][]const u8{
@@ -497,28 +499,28 @@ pub fn build(b: *std.Build) void {
     };
 
     for (yaml_sources) |src| {
-        h2o.addCSourceFile(.{ .file = h2o_dep.path(src), .flags = cflags_slice });
+        h2o.root_module.addCSourceFile(.{ .file = h2o_dep.path(src), .flags = cflags_slice });
     }
     for (brotli_sources) |src| {
-        h2o.addCSourceFile(.{ .file = h2o_dep.path(src), .flags = cflags_slice });
+        h2o.root_module.addCSourceFile(.{ .file = h2o_dep.path(src), .flags = cflags_slice });
     }
     for (zstd_sources) |src| {
-        h2o.addCSourceFile(.{ .file = h2o_dep.path(src), .flags = cflags_slice });
+        h2o.root_module.addCSourceFile(.{ .file = h2o_dep.path(src), .flags = cflags_slice });
     }
     for (lib_sources) |src| {
-        h2o.addCSourceFile(.{ .file = h2o_dep.path(src), .flags = cflags_slice });
+        h2o.root_module.addCSourceFile(.{ .file = h2o_dep.path(src), .flags = cflags_slice });
     }
 
-    h2o.addCSourceFile(.{ .file = h2o_dep.path("deps/picotls/lib/picotls.c"), .flags = cflags_no_sanitize_function_slice });
+    h2o.root_module.addCSourceFile(.{ .file = h2o_dep.path("deps/picotls/lib/picotls.c"), .flags = cflags_no_sanitize_function_slice });
 
     // lib/http3/qpack.c needs -fno-sanitize=null due to &entries[0] access when entries is NULL
     // (technically UB but works in practice, Zig's sanitizer catches it)
-    h2o.addCSourceFile(.{ .file = h2o_dep.path("lib/http3/qpack.c"), .flags = cflags_no_sanitize_null_slice });
+    h2o.root_module.addCSourceFile(.{ .file = h2o_dep.path("lib/http3/qpack.c"), .flags = cflags_no_sanitize_null_slice });
 
-    h2o.linkLibC();
-    h2o.linkSystemLibrary("pthread");
-    h2o.linkSystemLibrary("dl");
-    h2o.linkSystemLibrary("m");
+    h2o.root_module.link_libc = true;
+    h2o.root_module.linkSystemLibrary("pthread", .{});
+    h2o.root_module.linkSystemLibrary("dl", .{});
+    h2o.root_module.linkSystemLibrary("m", .{});
 
     b.installArtifact(h2o);
 
@@ -539,10 +541,10 @@ pub fn build(b: *std.Build) void {
         "tracer",
     });
     gen_tracer.setStdIn(.{ .lazy_path = h2o_dep.path("deps/quicly/quicly-probes.d") });
-    const generated_header = gen_tracer.captureStdOut();
+    const generated_header = gen_tracer.captureStdOut(.{});
     const write_files = b.addWriteFiles();
     const tracer_header_in_cache = write_files.addCopyFile(generated_header, "quicly-tracer.h");
-    h2o.addIncludePath(write_files.getDirectory());
+    h2o.root_module.addIncludePath(write_files.getDirectory());
     h2o.step.dependOn(&write_files.step);
 
     h2o.installHeader(tracer_header_in_cache, "quicly/quicly-tracer.h");
