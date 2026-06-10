@@ -27,8 +27,8 @@
             .lazy = true,
         },
         .boringssl = .{
-            .url = "git+https://github.com/Ramblurr/boringssl.git?ref=update/boringssl-0.20260211.0#e07b2a9bbf7dc0e93f122f61b579f648e066b3a1",
-            .hash = "boringssl-0.20260211.0-EhtkNSX1AgAVn19O7psBVh_y_ugXBQjPoaRowjbYCHfs",
+            .url = "git+https://github.com/Ramblurr/boringssl.git?ref=h2o-zig/boringssl-0.20260526.0-pic#56d7f0ece36a500037ab519c0f035fba715ae07d",
+            .hash = "boringssl-0.20260526.0-EhtkNa_1AgAQhAiZ-Q1ik0_32P63WPPBmyoynfjTqH88",
             .lazy = true,
         },
         .brotli_build = .{

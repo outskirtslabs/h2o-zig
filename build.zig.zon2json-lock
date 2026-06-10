@@ -39,50 +39,50 @@
     "url": "git+https://github.com/facebook/zstd.git?ref=v1.5.7#f8745da6ff1ad1e7bab384bd1f9d742439278e99",
     "hash": "sha256-536AnhlrKrrrtbqd6AmlXIKrvgxCEaUxN8LtC1Y2j2w="
   },
-  "boringssl-0.20260211.0-EhtkNSX1AgAVn19O7psBVh_y_ugXBQjPoaRowjbYCHfs": {
+  "boringssl-0.20260526.0-EhtkNa_1AgAQhAiZ-Q1ik0_32P63WPPBmyoynfjTqH88": {
     "name": "boringssl",
-    "url": "git+https://github.com/Ramblurr/boringssl.git?ref=update/boringssl-0.20260211.0#e07b2a9bbf7dc0e93f122f61b579f648e066b3a1",
-    "hash": "sha256-buWc5mY8haDrSzsFHgXk5VTE7RCfEBmhod/Sxl0rYWM="
+    "url": "git+https://github.com/Ramblurr/boringssl.git?ref=h2o-zig/boringssl-0.20260526.0-pic#56d7f0ece36a500037ab519c0f035fba715ae07d",
+    "hash": "sha256-Fa8NGn15ACOsh8q5bU0Xh24UgIXep+kyXgbh9xoBo9w="
   },
-  "N-V-__8AAPhCtgx0Mmk2dHLULFtWaEwMViuz4WudJWk5Vw8P": {
+  "N-V-__8AAJhc0w0H8yQ1jOqE3CHmQtOLsdy2qmZ5l4AsJya7": {
     "name": "boringssl",
-    "url": "https://github.com/google/boringssl/archive/617634bc015344093f5ea0b0a5b653c924cfa20d.tar.gz",
-    "hash": "sha256-LTSrA0miECxwZmPtHLd/bc7W86ZH20Q5zycAqbNblR0="
+    "url": "https://github.com/google/boringssl/archive/190fa71435c8675b80d7883e5d01858db4c91180.tar.gz",
+    "hash": "sha256-rPWs47XQAjd+BTlcXIA1xbLmdflDBQKmMFpBJ5lyL8A="
   },
-  "nasm-2.16.3-B_NnpU5KAADHG19LPMfgWVyyYyQLDt8S2x3UFOLQfjiN": {
+  "nasm-3.0.1-B_NnpQpTAAA25UxvqONakXtmj-a78PGe3xfgyDFgetb0": {
     "name": "nasm",
-    "url": "git+https://github.com/sno2/nasm.git#31622af89d7e90af49d2e610d7dcdf36f8e23c7a",
-    "hash": "sha256-mNlCVLj6P71R3IFiubfU8YafsVGmpi90mBQctF5stqk="
+    "url": "git+https://github.com/allyourcodebase/nasm.git#d7356eadb2d7771542fe74e8fc0668bd78732b59",
+    "hash": "sha256-8a6ByK+/yV6Q1Qfib+R5VycenUhIHuydRdNRSXc8xa8="
   },
-  "N-V-__8AAOdiwQAcuTPO3dqgQrt8BtvnkUYJ1Z5tP5qQOphI": {
+  "N-V-__8AAEAMKAFrNesgN6ZM9sxj37fq_i7UJe5nKkLmyRJI": {
     "name": "nasm",
-    "url": "https://nasm.us/pub/nasm/releasebuilds/2.16.03/nasm-2.16.03.tar.gz",
-    "hash": "sha256-v6L6BA5w8lY9Svlc4R+AdbvVmoXrKFQkSwXG6hwlgNQ="
+    "url": "https://www.nasm.us/pub/nasm/releasebuilds/3.01/nasm-3.01.tar.gz",
+    "hash": "sha256-a16+1uBXmvsJ1Z18oBwN3VTPfwqpjKOO+o1ax+Ofwp8="
   },
-  "patch-2.6.1-po1jORRvAAD4_gRpqMKvC00UPblvIpkxvnJdDpG4-DMY": {
+  "zlib-1.3.1-1-ZZQ7ldENAAA7qJjUXP6E6xnRuV-jDL9dyoJFc_eb3zQ6": {
+    "name": "zlib",
+    "url": "git+https://github.com/allyourcodebase/zlib.git#c5115f4b69ef660f72a835c6638f80508ef284c7",
+    "hash": "sha256-LXTzZptvs9dHFNndYCV+PjlTtmTn8O7BtLLJQ6Ul18c="
+  },
+  "patch-2.6.1-po1jOY5vAABWkdNnlxzrwMOSWfjOb_RUH8tcJVPK8Mgl": {
     "name": "patch",
-    "url": "git+https://github.com/akunaakwei/zig-patch.git#799ade2cd8954a38aba3d730de1a69891aa68234",
-    "hash": "sha256-Zee18Vl/k1lthZ0sxjyj1VML2kqvE2426eEdBfW6ALk="
+    "url": "git+https://github.com/akunaakwei/zig-patch.git#a5bf3778de3cae7ee7cdbaa0db3cdc3715b1bcbf",
+    "hash": "sha256-Tb0wcCIK/CQG6rKIzYS/4nOOrgyhsbcHrnBMzeXIQW0="
   },
   "N-V-__8AAJPSEgDcozcxiSvegfkjtNmn6GcEB8wT_c3xq86P": {
     "name": "patch",
-    "url": "https://ftpmirror.gnu.org/patch/patch-2.6.1.tar.gz",
-    "hash": "sha256-RaFPZH4gj/W2DvR9eSonMcyOMUUbh9AY0XnICOne7J8="
+    "url": "https://mirrors.kernel.org/gnu/patch/patch-2.6.1.tar.gz",
+    "hash": "sha256-Z/gqNmUwjlTxaa3dmYQG59AiJp2hFMe5Yl4gOhQva0k="
   },
-  "googletest-1.15.2-vLU55gAVAAC86GD--lNpG3oVHLsJhdB0lFCOCsBEbiAE": {
+  "googletest-1.15.2-vLU55pAVAABMlCpsee0jewNDhyAtv_6HbquizuRA0spo": {
     "name": "googletest",
-    "url": "git+https://github.com/allyourcodebase/googletest.git?ref=main#e2affdd13730f800aa63772039f2adfa971461b6",
-    "hash": "sha256-tHagB9RwtR8kQYIgO8eHZJPv6a+Up2NPrNqLxsZe/xY="
+    "url": "git+https://github.com/lukaskastern/googletest#f8acbec3df11c23efebe6aa9efba2d79cc42e727",
+    "hash": "sha256-skOf6+aPrMSCFYaGsVkrckMasQQtr795WYYXYkJOLlw="
   },
   "N-V-__8AAEV8PgDOBc81AuVJQ9XhGo46f-4dlQ7sXar_M0_i": {
     "name": "googletest",
     "url": "https://github.com/google/googletest/archive/refs/tags/v1.17.0.tar.gz",
-    "hash": "sha256-nFDyiWhN2oADzm3XpQOgDVInhZh8pCOevhiuSq/InPA="
-  },
-  "N-V-__8AAAzZEACOMvQYxlYs314zKF5QRYuHDO1DIIM41YBT": {
-    "name": "benchmark",
-    "url": "https://github.com/google/benchmark/archive/192ef10025eb2c4cdd392bc502f0c852196baa48.tar.gz",
-    "hash": "sha256-Mm4pG7zMB00iof32CxreoNBFnduPZTMp3reHMCIAFPQ="
+    "hash": "sha256-1lPv+qJRRDsc7CnNWxKiWMXQBN6VLCp5X3NfWEB3k6w="
   },
   "brotli_build-0.0.0-KJ9D2_sUAABKsFh3cVnQac7MbuJvgmYoq7PxcRa3lY1x": {
     "name": "brotli_build",
