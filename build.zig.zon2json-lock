@@ -86,7 +86,7 @@
   },
   "brotli_build-0.0.0-KJ9D22EVAADK5nnTfd8XM8Yn8tO9sGtUbfaBwl3lTM-3": {
     "name": "brotli_build",
-    "url": "git+https://github.com/Ramblurr/brotli.zig?ref=feat/pic#1aaaeeaf52bdcc8f56ed699fec690a5b4695dd30",
+    "url": "git+https://github.com/Ramblurr/brotli.zig?ref=feat/pic#fe5cb9ad7bb22d13a1b9190e71966e6901885590",
     "hash": "sha256-/9vEDvSqLAG1MWfNxaXAEtlPbYvgrtJeZlPMfUUQ5xY="
   },
   "N-V-__8AAI2b6QPVus14oqoaXFGvvUMDwBA0vE-y0XaApMDn": {
