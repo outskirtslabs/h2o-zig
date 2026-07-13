@@ -97,10 +97,9 @@ The following build-time flags are available:
 
 * `-Duse-boringssl=++<++bool++>++` - Use BoringSSL instead of OpenSSL
 (default: `true`)
-* `-Duse-external-brotli=++<++bool++>++` - Use external brotli
-dependency instead of vendored sources (default: `true`). The vendored
-one is from upstream h2o and is a much older version than the external
-one.
+
+Brotli and Zstandard support are always enabled through external Zig
+dependencies built with position-independent code.
 
 Example usage:
 

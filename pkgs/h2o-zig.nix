@@ -36,8 +36,6 @@ zig2nixEnv.package {
   zigBuildFlags = [
     "-Doptimize=ReleaseSafe"
     "-Duse-boringssl=true"
-    "-Duse-external-brotli=true"
-    "-Duse-external-zstd=true"
   ];
   postInstall = ''
     test -e "$out/lib/libh2o-evloop.a"

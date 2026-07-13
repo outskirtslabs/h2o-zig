@@ -94,8 +94,6 @@ fn addWslay(
 
 pub fn build(b: *std.Build) void {
     const use_boringssl = b.option(bool, "use-boringssl", "Use BoringSSL instead of OpenSSL (default: true)") orelse true;
-    const use_external_brotli = b.option(bool, "use-external-brotli", "Use external brotli Zig dependency instead of vendored sources (default: true)") orelse true;
-    const use_external_zstd = b.option(bool, "use-external-zstd", "Use external zstd Zig dependency instead of vendored sources (default: true)") orelse true;
     const use_aegis = b.option(bool, "use-aegis", "Enable AEGIS AEAD ciphers via libaegis (default: false)") orelse false;
 
     const target = b.standardTargetOptions(.{});
@@ -107,6 +105,16 @@ pub fn build(b: *std.Build) void {
 
     const h2o_dep = b.dependency("h2o", .{});
     const zlib = b.dependency("zlib", .{
+        .target = target,
+        .optimize = optimize,
+        .pie = needs_pic,
+    });
+    const zstd = b.dependency("zstd", .{
+        .target = target,
+        .optimize = optimize,
+        .pie = needs_pic,
+    });
+    const brotli = b.dependency("brotli_build", .{
         .target = target,
         .optimize = optimize,
         .pie = needs_pic,
@@ -137,9 +145,6 @@ pub fn build(b: *std.Build) void {
 
     h2o.root_module.addIncludePath(h2o_dep.path("include"));
     h2o.root_module.addIncludePath(h2o_dep.path("deps/cloexec"));
-    if (!use_external_brotli) {
-        h2o.root_module.addIncludePath(h2o_dep.path("deps/brotli/c/include"));
-    }
     h2o.root_module.addIncludePath(h2o_dep.path("deps/golombset"));
     h2o.root_module.addIncludePath(h2o_dep.path("deps/hiredis"));
     h2o.root_module.addIncludePath(h2o_dep.path("deps/libgkc"));
@@ -155,9 +160,6 @@ pub fn build(b: *std.Build) void {
     h2o.root_module.addIncludePath(h2o_dep.path("deps/quicly/include"));
     h2o.root_module.addIncludePath(h2o_dep.path("deps/yaml/include"));
     h2o.root_module.addIncludePath(h2o_dep.path("deps/yoml"));
-    if (!use_external_zstd) {
-        h2o.root_module.addIncludePath(h2o_dep.path("deps/zstd/lib"));
-    }
 
     if (use_boringssl) {
         if (b.lazyDependency("boringssl", .{
@@ -201,25 +203,11 @@ pub fn build(b: *std.Build) void {
         }
     }
     h2o.root_module.linkLibrary(zlib.artifact("z"));
-    if (use_external_zstd) {
-        if (b.lazyDependency("zstd", .{
-            .target = target,
-            .optimize = optimize,
-            .pie = needs_pic,
-        })) |zstd| {
-            h2o.root_module.linkLibrary(zstd.artifact("zstd"));
-            h2o.root_module.addIncludePath(zstd.artifact("zstd").getEmittedIncludeTree());
-        }
-    }
-    if (use_external_brotli) {
-        if (b.lazyDependency("brotli_build", .{
-            .target = target,
-            .optimize = optimize,
-            .pie = needs_pic,
-        })) |brotli| {
-            h2o.root_module.linkLibrary(brotli.artifact("brotli_lib"));
-        }
-    }
+    const zstd_lib = zstd.artifact("zstd");
+    h2o.root_module.linkLibrary(zstd_lib);
+    h2o.root_module.addIncludePath(zstd_lib.getEmittedIncludeTree());
+    const brotli_lib = brotli.artifact("brotli_lib");
+    h2o.root_module.linkLibrary(brotli_lib);
     if (use_aegis) {
         if (b.lazyDependency("libaegis", .{
             .target = target,
@@ -241,6 +229,7 @@ pub fn build(b: *std.Build) void {
         "-Wno-unused-function",
         "-DH2O_USE_LIBUV=0",
         "-DH2O_USE_BROTLI=1",
+        "-DH2O_USE_ZSTD=1",
         "-DQUICLY_USE_TRACER=1",
     };
 
@@ -262,33 +251,19 @@ pub fn build(b: *std.Build) void {
     if (needs_pic) {
         cflags_list.append(b.allocator, "-fPIC") catch unreachable;
     }
-    if (!use_external_zstd) {
-        cflags_list.append(b.allocator, "-DZSTD_DISABLE_ASM") catch unreachable;
-    }
     if (use_aegis) {
         cflags_list.append(b.allocator, "-DPTLS_HAVE_AEGIS") catch unreachable;
     }
 
     const cflags_slice = cflags_list.toOwnedSlice(b.allocator) catch unreachable;
 
-    // Some h2o files have code that is technically UB but works in practice.
-    // Zig's strict sanitizer catches these, so we disable sanitizers for them:
-    // - deps/picotls/lib/picotls.c: ReleaseSafe traps on the upstream logging
-    //   callback type mismatch
-    //   https://github.com/h2o/h2o/issues/3562
-    // - lib/http3/qpack.c: &entries[0] when entries may be NULL (null pointer dereference in subscript)
-    //   https://github.com/h2o/h2o/issues/3546
+    // Zig's strict sanitizer catches the upstream picotls logging callback type
+    // mismatch in ReleaseSafe builds, so disable the function sanitizer there.
+    // https://github.com/h2o/h2o/issues/3562
     var cflags_no_sanitize_function = std.ArrayList([]const u8).initCapacity(b.allocator, cflags_slice.len + 1) catch unreachable;
     cflags_no_sanitize_function.appendSlice(b.allocator, cflags_slice) catch unreachable;
     cflags_no_sanitize_function.append(b.allocator, "-fno-sanitize=function") catch unreachable;
     const cflags_no_sanitize_function_slice = cflags_no_sanitize_function.toOwnedSlice(b.allocator) catch unreachable;
-
-    // For qpack.c we also need to disable null pointer checks
-    var cflags_no_sanitize_null = std.ArrayList([]const u8).initCapacity(b.allocator, cflags_slice.len + 2) catch unreachable;
-    cflags_no_sanitize_null.appendSlice(b.allocator, cflags_slice) catch unreachable;
-    cflags_no_sanitize_null.append(b.allocator, "-fno-sanitize=null") catch unreachable;
-    cflags_no_sanitize_null.append(b.allocator, "-fno-sanitize=alignment") catch unreachable;
-    const cflags_no_sanitize_null_slice = cflags_no_sanitize_null.toOwnedSlice(b.allocator) catch unreachable;
 
     const yaml_sources = [_][]const u8{
         "deps/yaml/src/api.c",
@@ -300,67 +275,6 @@ pub fn build(b: *std.Build) void {
         "deps/yaml/src/scanner.c",
         "deps/yaml/src/writer.c",
     };
-
-    const brotli_sources_external = [_][]const u8{
-        "lib/handler/compress/brotli.c",
-    };
-    const brotli_sources_vendored = [_][]const u8{
-        "deps/brotli/c/common/dictionary.c",
-        "deps/brotli/c/dec/bit_reader.c",
-        "deps/brotli/c/dec/decode.c",
-        "deps/brotli/c/dec/huffman.c",
-        "deps/brotli/c/dec/state.c",
-        "deps/brotli/c/enc/backward_references.c",
-        "deps/brotli/c/enc/backward_references_hq.c",
-        "deps/brotli/c/enc/bit_cost.c",
-        "deps/brotli/c/enc/block_splitter.c",
-        "deps/brotli/c/enc/brotli_bit_stream.c",
-        "deps/brotli/c/enc/cluster.c",
-        "deps/brotli/c/enc/compress_fragment.c",
-        "deps/brotli/c/enc/compress_fragment_two_pass.c",
-        "deps/brotli/c/enc/dictionary_hash.c",
-        "deps/brotli/c/enc/encode.c",
-        "deps/brotli/c/enc/entropy_encode.c",
-        "deps/brotli/c/enc/histogram.c",
-        "deps/brotli/c/enc/literal_cost.c",
-        "deps/brotli/c/enc/memory.c",
-        "deps/brotli/c/enc/metablock.c",
-        "deps/brotli/c/enc/static_dict.c",
-        "deps/brotli/c/enc/utf8_util.c",
-        "lib/handler/compress/brotli.c",
-    };
-    const brotli_sources = if (use_external_brotli) &brotli_sources_external else &brotli_sources_vendored;
-
-    const zstd_sources_external = [_][]const u8{};
-    const zstd_sources_vendored = [_][]const u8{
-        "deps/zstd/lib/common/debug.c",
-        "deps/zstd/lib/common/entropy_common.c",
-        "deps/zstd/lib/common/error_private.c",
-        "deps/zstd/lib/common/fse_decompress.c",
-        "deps/zstd/lib/common/pool.c",
-        "deps/zstd/lib/common/threading.c",
-        "deps/zstd/lib/common/xxhash.c",
-        "deps/zstd/lib/common/zstd_common.c",
-        "deps/zstd/lib/compress/fse_compress.c",
-        "deps/zstd/lib/compress/hist.c",
-        "deps/zstd/lib/compress/huf_compress.c",
-        "deps/zstd/lib/compress/zstd_compress.c",
-        "deps/zstd/lib/compress/zstd_compress_literals.c",
-        "deps/zstd/lib/compress/zstd_compress_sequences.c",
-        "deps/zstd/lib/compress/zstd_compress_superblock.c",
-        "deps/zstd/lib/compress/zstd_double_fast.c",
-        "deps/zstd/lib/compress/zstd_fast.c",
-        "deps/zstd/lib/compress/zstd_lazy.c",
-        "deps/zstd/lib/compress/zstd_ldm.c",
-        "deps/zstd/lib/compress/zstdmt_compress.c",
-        "deps/zstd/lib/compress/zstd_opt.c",
-        "deps/zstd/lib/compress/zstd_preSplit.c",
-        "deps/zstd/lib/decompress/huf_decompress.c",
-        "deps/zstd/lib/decompress/zstd_ddict.c",
-        "deps/zstd/lib/decompress/zstd_decompress_block.c",
-        "deps/zstd/lib/decompress/zstd_decompress.c",
-    };
-    const zstd_sources = if (use_external_zstd) &zstd_sources_external else &zstd_sources_vendored;
 
     const lib_sources = [_][]const u8{
         "deps/cloexec/cloexec.c",
@@ -442,6 +356,7 @@ pub fn build(b: *std.Build) void {
         "lib/core/util.c",
         "lib/handler/access_log.c",
         "lib/handler/compress.c",
+        "lib/handler/compress/brotli.c",
         "lib/handler/compress/gzip.c",
         "lib/handler/compress/zstd.c",
         "lib/handler/errordoc.c",
@@ -493,6 +408,7 @@ pub fn build(b: *std.Build) void {
         "lib/http2/stream.c",
         "lib/http2/http2_debug_state.c",
         "lib/http3/frame.c",
+        "lib/http3/qpack.c",
         "lib/http3/common.c",
         "lib/http3/server.c",
         "lib/websocket.c",
@@ -501,21 +417,11 @@ pub fn build(b: *std.Build) void {
     for (yaml_sources) |src| {
         h2o.root_module.addCSourceFile(.{ .file = h2o_dep.path(src), .flags = cflags_slice });
     }
-    for (brotli_sources) |src| {
-        h2o.root_module.addCSourceFile(.{ .file = h2o_dep.path(src), .flags = cflags_slice });
-    }
-    for (zstd_sources) |src| {
-        h2o.root_module.addCSourceFile(.{ .file = h2o_dep.path(src), .flags = cflags_slice });
-    }
     for (lib_sources) |src| {
         h2o.root_module.addCSourceFile(.{ .file = h2o_dep.path(src), .flags = cflags_slice });
     }
 
     h2o.root_module.addCSourceFile(.{ .file = h2o_dep.path("deps/picotls/lib/picotls.c"), .flags = cflags_no_sanitize_function_slice });
-
-    // lib/http3/qpack.c needs -fno-sanitize=null due to &entries[0] access when entries is NULL
-    // (technically UB but works in practice, Zig's sanitizer catches it)
-    h2o.root_module.addCSourceFile(.{ .file = h2o_dep.path("lib/http3/qpack.c"), .flags = cflags_no_sanitize_null_slice });
 
     h2o.root_module.link_libc = true;
     h2o.root_module.linkSystemLibrary("pthread", .{});

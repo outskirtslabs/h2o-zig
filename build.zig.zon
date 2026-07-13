@@ -5,8 +5,8 @@
 
     .dependencies = .{
         .h2o = .{
-            .url = "git+https://github.com/ramblurr/h2o.git?ref=h2o-zig#df9a4db619d7706e62a92dd1a5539fdc3690d989",
-            .hash = "N-V-__8AACQ9LAQXcPEiLd_mcWtIxo1byemaSQy4unWdmIiz",
+            .url = "git+https://github.com/h2o/h2o.git?ref=master#edd7a120bfc4af11ac0cbebce2a43cc1f93f9af1",
+            .hash = "N-V-__8AAG4JoAGmibBGWvhDFqmS3KCvTcHUs7OBcTkmaJ_X",
         },
         .wslay = .{
             .url = "https://github.com/tatsuhiro-t/wslay/archive/refs/tags/release-1.1.1.tar.gz",
@@ -24,7 +24,6 @@
         .zstd = .{
             .url = "git+https://github.com/allyourcodebase/zstd.git?ref=1.5.7-2#4ccb01e6fceae86fb9fe36c60b8a103cdc058155",
             .hash = "zstd-1.5.7-2-KEItkAMwAADNhCbGaImKrjXjnSA51jcqEbGCA3RasVZ9",
-            .lazy = true,
         },
         .boringssl = .{
             .url = "git+https://github.com/Ramblurr/boringssl.git?ref=h2o-zig/boringssl-0.20260526.0-pic#56d7f0ece36a500037ab519c0f035fba715ae07d",
@@ -34,7 +33,6 @@
         .brotli_build = .{
             .url = "git+https://github.com/Ramblurr/brotli.zig?ref=feat/pic#fe5cb9ad7bb22d13a1b9190e71966e6901885590",
             .hash = "brotli_build-0.0.0-KJ9D22EVAADK5nnTfd8XM8Yn8tO9sGtUbfaBwl3lTM-3",
-            .lazy = true,
         },
         .libaegis = .{
             .url = "git+https://github.com/aegis-aead/libaegis.git?ref=0.9.1#fb173f3ea32e16c1c93c43035804ba6daf3adc59",
