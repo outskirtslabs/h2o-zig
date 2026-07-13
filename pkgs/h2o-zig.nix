@@ -33,6 +33,7 @@ zig2nixEnv.package {
       );
   };
   nativeBuildInputs = [ perl ];
+  doCheck = true;
   zigBuildFlags = [
     "-Doptimize=ReleaseSafe"
     "-Duse-boringssl=true"

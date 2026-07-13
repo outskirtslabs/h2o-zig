@@ -131,6 +131,8 @@ pub fn build(b: *std.Build) void {
         }),
         .linkage = .static,
     });
+    var bundled_archives = std.ArrayList(std.Build.LazyPath).initCapacity(b.allocator, 10) catch unreachable;
+    defer bundled_archives.deinit(b.allocator);
 
     if (is_macos_cross) {
         const sdk_path = b.graph.environ_map.get("APPLE_SDK_PATH") orelse
@@ -161,6 +163,7 @@ pub fn build(b: *std.Build) void {
     h2o.root_module.addIncludePath(h2o_dep.path("deps/yaml/include"));
     h2o.root_module.addIncludePath(h2o_dep.path("deps/yoml"));
 
+    var tls_include_tree: ?std.Build.LazyPath = null;
     if (use_boringssl) {
         if (b.lazyDependency("boringssl", .{
             .target = target,
@@ -171,11 +174,16 @@ pub fn build(b: *std.Build) void {
             const crypto_artifact = boringssl.artifact("crypto");
             const ssl_artifact = boringssl.artifact("ssl");
             const decrepit_artifact = boringssl.artifact("decrepit");
+            bundled_archives.append(b.allocator, bcm_artifact.getEmittedBin()) catch unreachable;
+            bundled_archives.append(b.allocator, crypto_artifact.getEmittedBin()) catch unreachable;
+            bundled_archives.append(b.allocator, ssl_artifact.getEmittedBin()) catch unreachable;
+            bundled_archives.append(b.allocator, decrepit_artifact.getEmittedBin()) catch unreachable;
             h2o.root_module.linkLibrary(bcm_artifact);
             h2o.root_module.linkLibrary(crypto_artifact);
             h2o.root_module.linkLibrary(ssl_artifact);
             h2o.root_module.linkLibrary(decrepit_artifact);
-            h2o.root_module.addIncludePath(ssl_artifact.getEmittedIncludeTree());
+            tls_include_tree = ssl_artifact.getEmittedIncludeTree();
+            h2o.root_module.addIncludePath(tls_include_tree.?);
             b.installArtifact(crypto_artifact);
             b.installArtifact(ssl_artifact);
         }
@@ -186,6 +194,8 @@ pub fn build(b: *std.Build) void {
         })) |openssl| {
             const ssl_artifact = openssl.artifact("ssl");
             const crypto_artifact = openssl.artifact("crypto");
+            bundled_archives.append(b.allocator, ssl_artifact.getEmittedBin()) catch unreachable;
+            bundled_archives.append(b.allocator, crypto_artifact.getEmittedBin()) catch unreachable;
             if (is_macos_cross) {
                 const sdk_path = b.graph.environ_map.get("APPLE_SDK_PATH") orelse
                     @panic("Cross-compiling to macOS requires APPLE_SDK_PATH environment variable");
@@ -196,30 +206,37 @@ pub fn build(b: *std.Build) void {
             }
             h2o.root_module.linkLibrary(ssl_artifact);
             h2o.root_module.linkLibrary(crypto_artifact);
-            h2o.root_module.addIncludePath(ssl_artifact.getEmittedIncludeTree());
+            tls_include_tree = ssl_artifact.getEmittedIncludeTree();
+            h2o.root_module.addIncludePath(tls_include_tree.?);
             h2o.root_module.addIncludePath(crypto_artifact.getEmittedIncludeTree());
             b.installArtifact(ssl_artifact);
             b.installArtifact(crypto_artifact);
         }
     }
-    h2o.root_module.linkLibrary(zlib.artifact("z"));
+    const zlib_lib = zlib.artifact("z");
+    h2o.root_module.linkLibrary(zlib_lib);
+    bundled_archives.append(b.allocator, zlib_lib.getEmittedBin()) catch unreachable;
     const zstd_lib = zstd.artifact("zstd");
     h2o.root_module.linkLibrary(zstd_lib);
     h2o.root_module.addIncludePath(zstd_lib.getEmittedIncludeTree());
+    bundled_archives.append(b.allocator, zstd_lib.getEmittedBin()) catch unreachable;
     const brotli_lib = brotli.artifact("brotli_lib");
     h2o.root_module.linkLibrary(brotli_lib);
+    bundled_archives.append(b.allocator, brotli_lib.getEmittedBin()) catch unreachable;
     if (use_aegis) {
         if (b.lazyDependency("libaegis", .{
             .target = target,
         })) |libaegis| {
             const aegis_lib = libaegis.artifact("aegis");
             h2o.root_module.linkLibrary(aegis_lib);
+            bundled_archives.append(b.allocator, aegis_lib.getEmittedBin()) catch unreachable;
             // Add include path directly from libaegis source for <aegis.h>
             h2o.root_module.addIncludePath(libaegis.path("src/include"));
         }
     }
 
     h2o.root_module.linkLibrary(wslay.lib);
+    bundled_archives.append(b.allocator, wslay.lib.getEmittedBin()) catch unreachable;
     b.installArtifact(wslay.lib);
 
     const base_cflags = [_][]const u8{
@@ -428,7 +445,36 @@ pub fn build(b: *std.Build) void {
     h2o.root_module.linkSystemLibrary("dl", .{});
     h2o.root_module.linkSystemLibrary("m", .{});
 
-    b.installArtifact(h2o);
+    const archive_format = if (target.result.os.tag == .macos) "--format=darwin" else "--format=gnu";
+    const bundle_h2o = b.addSystemCommand(&.{ b.graph.zig_exe, "ar", archive_format, "qcsL" });
+    const bundled_h2o = bundle_h2o.addOutputFileArg("libh2o-evloop.a");
+    bundle_h2o.addFileArg(h2o.getEmittedBin());
+    for (bundled_archives.items) |archive| bundle_h2o.addFileArg(archive);
+
+    const required_features = b.addExecutable(.{
+        .name = "required-features",
+        .root_module = b.createModule(.{
+            .target = target,
+            .optimize = optimize,
+        }),
+    });
+    required_features.root_module.addCSourceFile(.{
+        .file = b.path("test/required_features.c"),
+        .flags = cflags_slice,
+    });
+    required_features.root_module.addIncludePath(h2o_dep.path("include"));
+    required_features.root_module.addIncludePath(h2o_dep.path("deps/picotls/include"));
+    required_features.root_module.addIncludePath(h2o_dep.path("deps/quicly/include"));
+    if (tls_include_tree) |include_tree| required_features.root_module.addIncludePath(include_tree);
+    required_features.root_module.addObjectFile(bundled_h2o);
+    required_features.root_module.link_libc = true;
+    required_features.root_module.link_libcpp = true;
+    required_features.root_module.linkSystemLibrary("pthread", .{});
+    required_features.root_module.linkSystemLibrary("dl", .{});
+    required_features.root_module.linkSystemLibrary("m", .{});
+    const run_required_features = b.addRunArtifact(required_features);
+    const test_step = b.step("test", "Verify required h2o build features");
+    test_step.dependOn(&run_required_features.step);
 
     h2o.installHeader(h2o_dep.path("include/h2o.h"), "h2o.h");
     h2o.installHeadersDirectory(h2o_dep.path("include/h2o"), "h2o", .{});
@@ -454,4 +500,13 @@ pub fn build(b: *std.Build) void {
     h2o.step.dependOn(&write_files.step);
 
     h2o.installHeader(tracer_header_in_cache, "quicly/quicly-tracer.h");
+
+    const install_h2o_headers = b.addInstallArtifact(h2o, .{
+        .dest_dir = .disabled,
+        .pdb_dir = .disabled,
+        .compiler_rt_dyn_lib_dir = .disabled,
+        .implib_dir = .disabled,
+    });
+    b.getInstallStep().dependOn(&install_h2o_headers.step);
+    b.getInstallStep().dependOn(&b.addInstallLibFile(bundled_h2o, "libh2o-evloop.a").step);
 }

@@ -44,6 +44,7 @@
     .paths = .{
         "build.zig",
         "build.zig.zon",
+        "test",
     },
     .fingerprint = 0x89f86b324a7b5aec,
 }
