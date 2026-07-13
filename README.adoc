@@ -65,7 +65,7 @@ Issues]
 
 You need the following installed:
 
-* https://ziglang.org/[Zig] 0.15.2
+* https://ziglang.org/[Zig] 0.16.0
 * Perl (for an h2o build step)
 
 If you have nix you can use the dev shell provided by the flake in this
@@ -100,6 +100,10 @@ The following build-time flags are available:
 
 Brotli and Zstandard support are always enabled through external Zig
 dependencies built with position-independent code.
+
+Redis and memcached integrations are not supported by this Zig package
+and must not be relied upon. Some related upstream sources are compiled
+into the archive to avoid maintaining downstream patches.
 
 Example usage:
 
