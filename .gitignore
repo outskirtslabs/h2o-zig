@@ -1,8 +1,6 @@
-.direnv/
 .zig-cache
 .zig-cache-global/
 zig-out
 libaegis-src/
-*.md
 h2o/
 vendor/
