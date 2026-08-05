@@ -34,10 +34,7 @@ zig2nixEnv.package {
   };
   nativeBuildInputs = [ perl ];
   doCheck = true;
-  zigBuildFlags = [
-    "-Doptimize=ReleaseSafe"
-    "-Duse-boringssl=true"
-  ];
+  zigBuildFlags = [ "-Doptimize=ReleaseSafe" ];
   postInstall = ''
     test -e "$out/lib/libh2o-evloop.a"
     test -e "$out/include/h2o.h"

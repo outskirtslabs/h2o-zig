@@ -17,6 +17,6 @@ compatibility. Check the notes below for breaking changes warnings.
 * Package H2O's built-in-event-loop server as a position-independent static
   archive for embedding in shared libraries.
 * Support HTTP/1, HTTP/2, QUIC and HTTP/3, Brotli, and Zstandard.
-* Support BoringSSL by default, with OpenSSL as an alternative TLS backend.
+* BoringSSL as the sole TLS backend.
 * Support optional AEGIS ciphers.
 * Support x86-64 and AArch64 Linux and macOS targets with Zig 0.16.0.

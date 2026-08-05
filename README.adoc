@@ -103,18 +103,16 @@ your_exe.root_module.addIncludePath(h2o_lib.getEmittedIncludeTree());
 your_exe.root_module.addCMacro("H2O_USE_LIBUV", "0");
 ----
 
-The exported include tree contains the selected TLS and wslay headers. C
-and C++ code can include these headers directly. Zig's `@cImport` cannot
-parse some BoringSSL macros included by `h2o.h`, so Zig code using the
-default BoringSSL backend needs handwritten or generated Zig declarations,
-or must put its H2O-facing code in a C source file.
+The exported include tree contains BoringSSL and wslay headers. C and C++
+code can include these headers directly. Zig's `@cImport` cannot parse some
+BoringSSL macros included by `h2o.h`, so Zig code using the BoringSSL backend
+needs handwritten or generated Zig declarations, or must put its H2O-facing
+code in a C source file.
 
 === Build Options
 
 Pass these options to `b.dependency`:
 
-* `.@"use-boringssl" = ++<++bool++>++` - Use BoringSSL instead of OpenSSL
-(default: `true`)
 * `.@"use-aegis" = ++<++bool++>++` - Enable AEGIS AEAD ciphers
 (default: `false`)
 
@@ -125,7 +123,6 @@ For example:
 const h2o = b.dependency("h2o", .{
     .target = target,
     .optimize = optimize,
-    .@"use-boringssl" = false,
     .@"use-aegis" = true,
 });
 your_exe.root_module.linkLibrary(h2o.artifact("h2o-evloop"));
@@ -228,9 +225,6 @@ https://github.com/kazuho/[Kazuho Oku], and contributors.
 License and copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors.
 * https://github.com/facebook/zstd[zstd] is licensed under the BSD
 License and copyright (c) Meta Platforms, Inc.
-* https://github.com/openssl/openssl[OpenSSL] is licensed under the
-Apache 2.0 License and copyright (c) 1998-2025 The OpenSSL Project
-Authors, and copyright (c) 1995-1998 Eric A. Young, Tim J. Hudson.
 * https://github.com/google/boringssl[BoringSSL] is licensed under the
 Apache 2.0 License and copyright
 https://github.com/google/boringssl/blob/58da9b0d721fd807279f4e3898741c92cf43bdbd/AUTHORS#[a

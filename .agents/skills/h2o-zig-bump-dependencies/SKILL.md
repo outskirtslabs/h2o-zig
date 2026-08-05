@@ -19,7 +19,6 @@ Use the existing checkout for source and fork work:
 - `vendor/brotli.zig` — Brotli Zig wrapper fork
 - `vendor/googletest` — googletest package checkout
 - `vendor/libaegis` — libaegis source checkout
-- `vendor/openssl-zig` — OpenSSL Zig wrapper fork
 - `vendor/picotls` — picotls fork
 - `vendor/wslay` — wslay source checkout
 

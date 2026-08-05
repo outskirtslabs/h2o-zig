@@ -12,11 +12,6 @@
             .url = "https://github.com/tatsuhiro-t/wslay/archive/refs/tags/release-1.1.1.tar.gz",
             .hash = "N-V-__8AADdLBADNETOk9pvYZ-k7F8a08-U43YCrYSlxu621",
         },
-        .openssl = .{
-            .url = "git+https://github.com/dzfrias/openssl-zig.git?ref=main#303ff47bad5d3b4d55d5a85a7ca5053abba3e307",
-            .hash = "openssl-3.6.0-YymhPkUpAQBvGMYJLeoNCns4esnK4ysEzokvFoypRQv1",
-            .lazy = true,
-        },
         .zlib = .{
             .url = "git+https://github.com/allyourcodebase/zlib.git#3599c16d41dbe749ae51b0ff7ab864c61adc779a",
             .hash = "zlib-1.3.1-ZZQ7lc8NAABUbHzDe_cSWboCqMbrLkVwvFkKnojgeiT2",
@@ -28,7 +23,6 @@
         .boringssl = .{
             .url = "git+https://github.com/Ramblurr/boringssl.git?ref=h2o-zig/boringssl-0.20260803.0-pic#481bf9149379137499d71dda643653017c15c02d",
             .hash = "boringssl-0.20260803.0-EhtkNcs5AABZbwLHRGfg9683007kfB-ToRrFTmn5PcTr",
-            .lazy = true,
         },
         .brotli_build = .{
             .url = "git+https://github.com/Ramblurr/brotli.zig?ref=feat/pic#fe5cb9ad7bb22d13a1b9190e71966e6901885590",

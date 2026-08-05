@@ -93,7 +93,6 @@ fn addWslay(
 }
 
 pub fn build(b: *std.Build) void {
-    const use_boringssl = b.option(bool, "use-boringssl", "Use BoringSSL instead of OpenSSL (default: true)") orelse true;
     const use_aegis = b.option(bool, "use-aegis", "Enable AEGIS AEAD ciphers via libaegis (default: false)") orelse false;
 
     const target = b.standardTargetOptions(.{});
@@ -163,52 +162,25 @@ pub fn build(b: *std.Build) void {
     h2o.root_module.addIncludePath(h2o_dep.path("deps/yaml/include"));
     h2o.root_module.addIncludePath(h2o_dep.path("deps/yoml"));
 
-    var tls_include_tree: ?std.Build.LazyPath = null;
-    if (use_boringssl) {
-        if (b.lazyDependency("boringssl", .{
-            .target = target,
-            .optimize = optimize,
-            .pie = needs_pic,
-        })) |boringssl| {
-            const bcm_artifact = boringssl.artifact("bcm");
-            const crypto_artifact = boringssl.artifact("crypto");
-            const ssl_artifact = boringssl.artifact("ssl");
-            const decrepit_artifact = boringssl.artifact("decrepit");
-            bundled_archives.append(b.allocator, bcm_artifact.getEmittedBin()) catch unreachable;
-            bundled_archives.append(b.allocator, crypto_artifact.getEmittedBin()) catch unreachable;
-            bundled_archives.append(b.allocator, ssl_artifact.getEmittedBin()) catch unreachable;
-            bundled_archives.append(b.allocator, decrepit_artifact.getEmittedBin()) catch unreachable;
-            h2o.root_module.linkLibrary(bcm_artifact);
-            h2o.root_module.linkLibrary(crypto_artifact);
-            h2o.root_module.linkLibrary(ssl_artifact);
-            h2o.root_module.linkLibrary(decrepit_artifact);
-            tls_include_tree = ssl_artifact.getEmittedIncludeTree();
-            h2o.root_module.addIncludePath(tls_include_tree.?);
-        }
-    } else {
-        if (b.lazyDependency("openssl", .{
-            .target = target,
-            .optimize = optimize,
-        })) |openssl| {
-            const ssl_artifact = openssl.artifact("ssl");
-            const crypto_artifact = openssl.artifact("crypto");
-            bundled_archives.append(b.allocator, ssl_artifact.getEmittedBin()) catch unreachable;
-            bundled_archives.append(b.allocator, crypto_artifact.getEmittedBin()) catch unreachable;
-            if (is_macos_cross) {
-                const sdk_path = b.graph.environ_map.get("APPLE_SDK_PATH") orelse
-                    @panic("Cross-compiling to macOS requires APPLE_SDK_PATH environment variable");
-                var sdk_include_buf: [1024]u8 = undefined;
-                const sdk_include = std.fmt.bufPrint(&sdk_include_buf, "{s}/usr/include", .{sdk_path}) catch unreachable;
-                ssl_artifact.root_module.addSystemIncludePath(.{ .cwd_relative = sdk_include });
-                crypto_artifact.root_module.addSystemIncludePath(.{ .cwd_relative = sdk_include });
-            }
-            h2o.root_module.linkLibrary(ssl_artifact);
-            h2o.root_module.linkLibrary(crypto_artifact);
-            tls_include_tree = ssl_artifact.getEmittedIncludeTree();
-            h2o.root_module.addIncludePath(tls_include_tree.?);
-            h2o.root_module.addIncludePath(crypto_artifact.getEmittedIncludeTree());
-        }
-    }
+    const boringssl = b.dependency("boringssl", .{
+        .target = target,
+        .optimize = optimize,
+        .pie = needs_pic,
+    });
+    const bcm_artifact = boringssl.artifact("bcm");
+    const crypto_artifact = boringssl.artifact("crypto");
+    const ssl_artifact = boringssl.artifact("ssl");
+    const decrepit_artifact = boringssl.artifact("decrepit");
+    bundled_archives.append(b.allocator, bcm_artifact.getEmittedBin()) catch unreachable;
+    bundled_archives.append(b.allocator, crypto_artifact.getEmittedBin()) catch unreachable;
+    bundled_archives.append(b.allocator, ssl_artifact.getEmittedBin()) catch unreachable;
+    bundled_archives.append(b.allocator, decrepit_artifact.getEmittedBin()) catch unreachable;
+    h2o.root_module.linkLibrary(bcm_artifact);
+    h2o.root_module.linkLibrary(crypto_artifact);
+    h2o.root_module.linkLibrary(ssl_artifact);
+    h2o.root_module.linkLibrary(decrepit_artifact);
+    const tls_include_tree = ssl_artifact.getEmittedIncludeTree();
+    h2o.root_module.addIncludePath(tls_include_tree);
     const zlib_lib = zlib.artifact("z");
     h2o.root_module.linkLibrary(zlib_lib);
     bundled_archives.append(b.allocator, zlib_lib.getEmittedBin()) catch unreachable;
@@ -477,7 +449,7 @@ pub fn build(b: *std.Build) void {
     h2o.installHeader(h2o_dep.path("deps/quicly/include/quicly.h"), "quicly.h");
     h2o.installHeadersDirectory(h2o_dep.path("deps/quicly/include/quicly"), "quicly", .{});
 
-    if (tls_include_tree) |include_tree| h2o.installHeadersDirectory(include_tree, "", .{});
+    h2o.installHeadersDirectory(tls_include_tree, "", .{});
     h2o.installHeadersDirectory(wslay.lib.getEmittedIncludeTree(), "", .{});
 
     // Generate quicly-tracer.h from quicly-probes.d using Perl (requires Perl)
