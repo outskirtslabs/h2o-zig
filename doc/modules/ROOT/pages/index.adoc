@@ -73,56 +73,88 @@ repo.
 
 == Use as a dependency
 
-First, update your `build.zig.zon`:
+Add this package to your `build.zig.zon`:
 
 ....
 zig init # if you don't have a build.zig already
 zig fetch --save git+https://github.com/outskirtslabs/h2o-zig.git
 ....
 
-You can then import `h2o` in your `build.zig` with:
+Then link the exported `h2o-evloop` artifact in `build.zig`:
 
 [source,zig]
 ----
-const h2o_dependency = b.dependency("h2o", .{
+const h2o = b.dependency("h2o", .{
     .target = target,
     .optimize = optimize,
 });
-your_exe.linkLibrary(h2o_dependency.artifact("h2o-evloop"));
+your_exe.root_module.linkLibrary(h2o.artifact("h2o-evloop"));
 ----
+
+`linkLibrary` is sufficient for consumers that only link the archive. If
+the consumer compiles a C shim or generated C binding that includes H2O
+headers, also expose the selected TLS headers and disable libuv in the
+public H2O configuration. With the default BoringSSL backend:
+
+[source,zig]
+----
+if (h2o.builder.lazyDependency("boringssl", .{
+    .target = target,
+    .optimize = optimize,
+    .pie = true,
+})) |boringssl| {
+    your_exe.root_module.addIncludePath(
+        boringssl.artifact("ssl").getEmittedIncludeTree(),
+    );
+}
+your_exe.root_module.addCMacro("H2O_USE_LIBUV", "0");
+----
+
+With `.@"use-boringssl" = false`, obtain the OpenSSL headers instead:
+
+[source,zig]
+----
+if (h2o.builder.lazyDependency("openssl", .{
+    .target = target,
+    .optimize = optimize,
+})) |openssl| {
+    your_exe.root_module.addIncludePath(
+        openssl.artifact("ssl").getEmittedIncludeTree(),
+    );
+}
+----
+
+These extra settings work around package public-interface propagation.
+Direct `@cImport("h2o.h")` with the default BoringSSL backend fails on
+BoringSSL stack macros. Use a C shim or generated C binding instead.
 
 === Build Options
 
-The following build-time flags are available:
+Pass these options to `b.dependency`:
 
-* `-Duse-boringssl=++<++bool++>++` - Use BoringSSL instead of OpenSSL
+* `.@"use-boringssl" = ++<++bool++>++` - Use BoringSSL instead of OpenSSL
 (default: `true`)
+* `.@"use-aegis" = ++<++bool++>++` - Enable AEGIS AEAD ciphers
+(default: `false`)
+
+For example:
+
+[source,zig]
+----
+const h2o = b.dependency("h2o", .{
+    .target = target,
+    .optimize = optimize,
+    .@"use-boringssl" = false,
+    .@"use-aegis" = true,
+});
+your_exe.root_module.linkLibrary(h2o.artifact("h2o-evloop"));
+----
 
 Brotli and Zstandard support are always enabled through external Zig
 dependencies built with position-independent code.
 
-Redis and memcached integrations are not supported by this Zig package
-and must not be relied upon. Some related upstream sources are compiled
-into the archive to avoid maintaining downstream patches.
-
-Example usage:
-
-[source,zig]
-----
-const h2o_dependency = b.dependency("h2o", .{
-    .target = target,
-    .optimize = optimize,
-    .@"use-boringssl" = true, // default
-});
-your_exe.linkLibrary(h2o_dependency.artifact("h2o-evloop"));
-----
-
-Or via command line when building:
-
-[source,bash]
-----
-zig build -Duse-boringssl=true
-----
+Redis and memcached integrations are unsupported. Some related upstream
+sources remain in the archive to avoid downstream patches.
 
 === Cross-Compilation to macOS
 
