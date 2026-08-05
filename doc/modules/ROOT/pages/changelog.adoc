@@ -11,6 +11,9 @@ compatibility. Check the notes below for breaking changes warnings.
 
 == Unreleased
 
+* Install one bundled `libh2o-evloop.a` instead of separate TLS
+  and wslay archives. The public include tree now contains the selected TLS
+  and wslay headers.
 * Package H2O's built-in-event-loop server as a position-independent static
   archive for embedding in shared libraries.
 * Support HTTP/1, HTTP/2, QUIC and HTTP/3, Brotli, and Zstandard.

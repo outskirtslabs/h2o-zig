@@ -40,7 +40,11 @@ zig2nixEnv.package {
   ];
   postInstall = ''
     test -e "$out/lib/libh2o-evloop.a"
-    test -e "$out/lib/libssl.a"
-    test -e "$out/lib/libcrypto.a"
+    test -e "$out/include/h2o.h"
+    test -e "$out/include/openssl/ssl.h"
+    test -e "$out/include/wslay/wslay.h"
+    test ! -e "$out/lib/libssl.a"
+    test ! -e "$out/lib/libcrypto.a"
+    test ! -e "$out/lib/libwslay.a"
   '';
 }

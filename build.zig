@@ -184,8 +184,6 @@ pub fn build(b: *std.Build) void {
             h2o.root_module.linkLibrary(decrepit_artifact);
             tls_include_tree = ssl_artifact.getEmittedIncludeTree();
             h2o.root_module.addIncludePath(tls_include_tree.?);
-            b.installArtifact(crypto_artifact);
-            b.installArtifact(ssl_artifact);
         }
     } else {
         if (b.lazyDependency("openssl", .{
@@ -209,8 +207,6 @@ pub fn build(b: *std.Build) void {
             tls_include_tree = ssl_artifact.getEmittedIncludeTree();
             h2o.root_module.addIncludePath(tls_include_tree.?);
             h2o.root_module.addIncludePath(crypto_artifact.getEmittedIncludeTree());
-            b.installArtifact(ssl_artifact);
-            b.installArtifact(crypto_artifact);
         }
     }
     const zlib_lib = zlib.artifact("z");
@@ -237,7 +233,6 @@ pub fn build(b: *std.Build) void {
 
     h2o.root_module.linkLibrary(wslay.lib);
     bundled_archives.append(b.allocator, wslay.lib.getEmittedBin()) catch unreachable;
-    b.installArtifact(wslay.lib);
 
     const base_cflags = [_][]const u8{
         "-std=gnu99",
@@ -462,10 +457,7 @@ pub fn build(b: *std.Build) void {
         .file = b.path("test/required_features.c"),
         .flags = cflags_slice,
     });
-    required_features.root_module.addIncludePath(h2o_dep.path("include"));
-    required_features.root_module.addIncludePath(h2o_dep.path("deps/picotls/include"));
-    required_features.root_module.addIncludePath(h2o_dep.path("deps/quicly/include"));
-    if (tls_include_tree) |include_tree| required_features.root_module.addIncludePath(include_tree);
+    required_features.root_module.addIncludePath(h2o.getEmittedIncludeTree());
     required_features.root_module.addObjectFile(bundled_h2o);
     required_features.root_module.link_libc = true;
     required_features.root_module.link_libcpp = true;
@@ -484,6 +476,9 @@ pub fn build(b: *std.Build) void {
 
     h2o.installHeader(h2o_dep.path("deps/quicly/include/quicly.h"), "quicly.h");
     h2o.installHeadersDirectory(h2o_dep.path("deps/quicly/include/quicly"), "quicly", .{});
+
+    if (tls_include_tree) |include_tree| h2o.installHeadersDirectory(include_tree, "", .{});
+    h2o.installHeadersDirectory(wslay.lib.getEmittedIncludeTree(), "", .{});
 
     // Generate quicly-tracer.h from quicly-probes.d using Perl (requires Perl)
     const gen_tracer = b.addSystemCommand(&[_][]const u8{

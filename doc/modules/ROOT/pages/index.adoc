@@ -21,6 +21,7 @@ that need to expose all h2o and SSL symbols in a final shared library.
 
 Included h2o features:
 
+* built-in event loop
 * http 1
 * http 2
 * picotls
@@ -88,45 +89,25 @@ const h2o = b.dependency("h2o", .{
     .target = target,
     .optimize = optimize,
 });
-your_exe.root_module.linkLibrary(h2o.artifact("h2o-evloop"));
+const h2o_lib = h2o.artifact("h2o-evloop");
+your_exe.root_module.linkLibrary(h2o_lib);
 ----
 
-`linkLibrary` is sufficient for consumers that only link the archive. If
-the consumer compiles a C shim or generated C binding that includes H2O
-headers, also expose the selected TLS headers and disable libuv in the
-public H2O configuration. With the default BoringSSL backend:
+If your project only links the archive, `linkLibrary` is enough. If it
+compiles C code that includes H2O headers, also expose the artifact's
+public headers and disable libuv in H2O's public configuration:
 
 [source,zig]
 ----
-if (h2o.builder.lazyDependency("boringssl", .{
-    .target = target,
-    .optimize = optimize,
-    .pie = true,
-})) |boringssl| {
-    your_exe.root_module.addIncludePath(
-        boringssl.artifact("ssl").getEmittedIncludeTree(),
-    );
-}
+your_exe.root_module.addIncludePath(h2o_lib.getEmittedIncludeTree());
 your_exe.root_module.addCMacro("H2O_USE_LIBUV", "0");
 ----
 
-With `.@"use-boringssl" = false`, obtain the OpenSSL headers instead:
-
-[source,zig]
-----
-if (h2o.builder.lazyDependency("openssl", .{
-    .target = target,
-    .optimize = optimize,
-})) |openssl| {
-    your_exe.root_module.addIncludePath(
-        openssl.artifact("ssl").getEmittedIncludeTree(),
-    );
-}
-----
-
-These extra settings work around package public-interface propagation.
-Direct `@cImport("h2o.h")` with the default BoringSSL backend fails on
-BoringSSL stack macros. Use a C shim or generated C binding instead.
+The exported include tree contains the selected TLS and wslay headers. C
+and C++ code can include these headers directly. Zig's `@cImport` cannot
+parse some BoringSSL macros included by `h2o.h`, so Zig code using the
+default BoringSSL backend needs handwritten or generated Zig declarations,
+or must put its H2O-facing code in a C source file.
 
 === Build Options
 
