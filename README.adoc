@@ -235,7 +235,7 @@ cmake --build build -j$(nproc)
 h2o-zig is distributed under the
 https://spdx.org/licenses/MIT.html[MIT].
 
-Copyright © 2025 Casey Link casey@outskirtslabs.com
+Copyright © 2025-2026 Casey Link casey@outskirtslabs.com
 
 Binary distributions (JAR files on Clojars and GitHub releases) may
 bundle the following third-party projects:

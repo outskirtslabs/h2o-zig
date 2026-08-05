@@ -1,0 +1,19 @@
+= Changelog
+
+All notable changes to h2o-zig are documented in this file.
+
+Release versions use the date-based format `v0.YYYYMMDD.N`. `YYYYMMDD` is
+the UTC release date, and `N` distinguishes multiple releases on the same
+day.
+
+The version identifies when a release was cut; it does not communicate API
+compatibility. Check the notes below for breaking changes warnings.
+
+== Unreleased
+
+* Package H2O's built-in-event-loop server as a position-independent static
+  archive for embedding in shared libraries.
+* Support HTTP/1, HTTP/2, QUIC and HTTP/3, Brotli, and Zstandard.
+* Support BoringSSL by default, with OpenSSL as an alternative TLS backend.
+* Support optional AEGIS ciphers.
+* Support x86-64 and AArch64 Linux and macOS targets with Zig 0.16.0.
