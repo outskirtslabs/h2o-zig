@@ -1,5 +1,5 @@
 ---
-name: bump-dependencies
+name: h2o-zig-bump-dependencies
 description: Bumps dependencies pinned in build.zig.zon. Use when updating H2O, BoringSSL, or any other dependency in h2o-zig.
 ---
 
@@ -29,7 +29,7 @@ Use the existing checkout for source and fork work:
 
 Use the matching branch:
 
-- **H2O:** fetch `upstream/master` from `h2o/h2o`; re-fetch immediately before finalizing the pin. Check source paths, build metadata, public headers, and required symbols. Keep unmodified official upstream unless the comparison proves a patch necessary. Run the upstream examples when the diff affects built-in-event-loop integration, examples, or their build metadata.
+- **H2O:** fetch `upstream/master` from `h2o/h2o`; re-fetch immediately before finalizing the pin. Check source paths, build metadata, public headers, and required symbols. Keep unmodified official upstream unless the comparison proves a patch necessary. Run the upstream examples when the diff affects built-in-event-loop integration, examples, or their build metadata. When H2O work requires a local build, upstream tests, or examples, read [local-h2o.md](local-h2o.md) before continuing.
 - **BoringSSL:** select the release from the official GitHub Releases. When the user requests the latest release, resolve it with:
 
   ```bash
