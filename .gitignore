@@ -4,3 +4,5 @@ zig-out
 libaegis-src/
 h2o/
 vendor/
+.worktrees
+zig-pkg
