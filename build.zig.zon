@@ -5,8 +5,8 @@
 
     .dependencies = .{
         .h2o = .{
-            .url = "git+https://github.com/h2o/h2o.git?ref=master#3a5d2cb898bdb54795f060be7aba478912f65bb0",
-            .hash = "N-V-__8AAGQJoAFAIqzfpmAk5gvm6O2U1WijZkzy4GF-uK9T",
+            .url = "git+https://github.com/h2o/h2o.git?ref=master#cac7e6568ad98a848f099ecd0a18b881f632479a",
+            .hash = "N-V-__8AACk3oQGoUNgWlQYaYUkwA5z4QVD3Yv7B3ydFzOhS",
         },
         .wslay = .{
             .url = "https://github.com/tatsuhiro-t/wslay/archive/refs/tags/release-1.1.1.tar.gz",
@@ -21,8 +21,8 @@
             .hash = "zstd-1.5.7-2-KEItkAMwAADNhCbGaImKrjXjnSA51jcqEbGCA3RasVZ9",
         },
         .boringssl = .{
-            .url = "git+https://github.com/Ramblurr/boringssl.git?ref=h2o-zig/boringssl-0.20260803.0-pic#481bf9149379137499d71dda643653017c15c02d",
-            .hash = "boringssl-0.20260803.0-EhtkNcs5AABZbwLHRGfg9683007kfB-ToRrFTmn5PcTr",
+            .url = "git+https://github.com/Ramblurr/boringssl.git?ref=h2o-zig/boringssl-0.20260813.0-pic#344fbda02c4b8e43491d632d8445bf53d2491533",
+            .hash = "boringssl-0.20260813.0-EhtkNbw1AAAUFQcMyMfTt_wNBPjR2UgNVkR3htV8lB5C",
         },
         .brotli_build = .{
             .url = "git+https://github.com/Ramblurr/brotli.zig?ref=feat/pic#fe5cb9ad7bb22d13a1b9190e71966e6901885590",

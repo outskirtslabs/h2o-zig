@@ -179,7 +179,7 @@ pub fn build(b: *std.Build) void {
     h2o.root_module.linkLibrary(crypto_artifact);
     h2o.root_module.linkLibrary(ssl_artifact);
     h2o.root_module.linkLibrary(decrepit_artifact);
-    const tls_include_tree = ssl_artifact.getEmittedIncludeTree();
+    const tls_include_tree = boringssl.namedLazyPath("ssl_include");
     h2o.root_module.addIncludePath(tls_include_tree);
     const zlib_lib = zlib.artifact("z");
     h2o.root_module.linkLibrary(zlib_lib);
@@ -292,7 +292,6 @@ pub fn build(b: *std.Build) void {
         "deps/picotls/lib/cifra/x25519.c",
         "deps/quicly/lib/cc-cubic.c",
         "deps/quicly/lib/cc-pico.c",
-        "deps/quicly/lib/cc-reno.c",
         "deps/quicly/lib/defaults.c",
         "deps/quicly/lib/frame.c",
         "deps/quicly/lib/local_cid.c",
