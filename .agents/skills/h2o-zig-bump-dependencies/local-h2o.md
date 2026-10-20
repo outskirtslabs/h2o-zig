@@ -4,10 +4,16 @@ Use a separate CMake build directory for the stateful `h2o/` checkout:
 
 ```bash
 cd h2o
-cmake -G Ninja -B build-local -S . -DDISABLE_LIBUV=ON -DWITH_MRUBY=OFF
+cmake -G "Unix Makefiles" -B build-local -S . -DDISABLE_LIBUV=ON -DWITH_MRUBY=OFF
 cmake --build build-local -j"$(nproc)"
-cmake --build build-local --target check
+timeout -k 10s 15m cmake --build build-local --target check
 ```
+
+Use a fresh directory if an existing one uses Ninja: the upstream external picotls/quicly projects default to Makefiles, while their build commands inherit the parent's build tool.
+
+The full upstream integration suite is additional to the required Zig/Nix matrix. Before running it, check its optional prerequisites; the FastCGI tests need `perl -MFCGI -e 1`, which the current devshell does not provide. Record a missing prerequisite as incomplete validation, not a pass.
+
+Run long checks with a bounded timeout and inspect progress regularly. `t/run-tests` buffers each test in `/tmp/<temporary-directory>/t__*.out` until it completes. A quiet main log can hide a failed child process. Inspect the current per-test log and process tree rather than waiting on an idle log; its internal timeout can itself block on inherited log locks. Do not rerun the entire suite to diagnose one stalled test.
 
 ## Run upstream examples
 

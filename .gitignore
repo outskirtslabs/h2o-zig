@@ -6,3 +6,5 @@ h2o/
 vendor/
 .worktrees
 zig-pkg
+.clj-kondo
+.lsp

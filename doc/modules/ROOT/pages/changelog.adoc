@@ -11,6 +11,11 @@ compatibility. Check the notes below for breaking changes warnings.
 
 == Unreleased
 
+* Require Zig 0.17.0.
+* Update BoringSSL to `0.20260929.0` and H2O to upstream master
+  `7a5ede4baec1bb7f2c6bf4efdcb3eebd1bc2aaa7`.
+* Applications implementing QUIC forwarding callbacks must update their TTL
+  handling for https://github.com/h2o/h2o/pull/3653[H2O's forwarding changes].
 * Install one bundled `libh2o-evloop.a` instead of separate TLS
   and wslay archives. The public include tree now contains the selected TLS
   and wslay headers.
@@ -19,4 +24,4 @@ compatibility. Check the notes below for breaking changes warnings.
 * Support HTTP/1, HTTP/2, QUIC and HTTP/3, Brotli, and Zstandard.
 * BoringSSL as the sole TLS backend.
 * Support optional AEGIS ciphers.
-* Support x86-64 and AArch64 Linux and macOS targets with Zig 0.16.0.
+* Support x86-64 and AArch64 Linux and macOS targets with Zig 0.17.0.

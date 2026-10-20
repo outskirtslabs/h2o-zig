@@ -182,10 +182,13 @@ Simply activate the nix devshell then:
 ----
 git clone https://github.com/h2o/h2o.git h2o
 cd h2o
-cmake -B build -S .  -DDISABLE_LIBUV=ON -DWITH_MRUBY=OFF
+cmake -G "Unix Makefiles" -B build -S .  -DDISABLE_LIBUV=ON -DWITH_MRUBY=OFF
 cmake --build build -j$(nproc)
 cmake --build build --target check
 ----
+
+The full upstream test suite requires additional tools and Perl modules,
+including `FCGI`.
 
 === Building picotls (with AEGIS support)
 
