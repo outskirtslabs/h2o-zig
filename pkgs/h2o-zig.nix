@@ -7,10 +7,12 @@
 let
   system = stdenv.hostPlatform.system;
   root = toString ../.;
-  zig = zig2nix.packages.${system}."zig-0_16_0";
-  zig2nixEnv = zig2nix.outputs.zig-env.${system} { inherit zig; };
+  zig = zig2nix.packages.${system}."zig-0_17_0";
+  # Keep dependency fetching on 0.16 until zig2nix supports 0.17's fetch API.
+  fetchZig = zig2nix.packages.${system}."zig-0_16_0";
+  zig2nixEnv = zig2nix.outputs.zig-env.${system} { zig = fetchZig; };
 in
-zig2nixEnv.package {
+(zig2nixEnv.package {
   pname = "h2o-zig";
   version = "0.0.1";
   src = lib.cleanSourceWith {
@@ -44,4 +46,7 @@ zig2nixEnv.package {
     test ! -e "$out/lib/libcrypto.a"
     test ! -e "$out/lib/libwslay.a"
   '';
-}
+}).overrideAttrs (old: {
+  # Compile and test with 0.17; only the fixed-output dependency fetches use 0.16.
+  nativeBuildInputs = map (input: if input == fetchZig.hook then zig.hook else input) old.nativeBuildInputs;
+})

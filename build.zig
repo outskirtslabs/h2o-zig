@@ -452,12 +452,9 @@ pub fn build(b: *std.Build) void {
     h2o.installHeadersDirectory(wslay.lib.getEmittedIncludeTree(), "", .{});
 
     // Generate quicly-tracer.h from quicly-probes.d using Perl (requires Perl)
-    const gen_tracer = b.addSystemCommand(&[_][]const u8{
-        "perl",
-        h2o_dep.path("deps/quicly/misc/probe2trace.pl").getPath(b),
-        "-a",
-        "tracer",
-    });
+    const gen_tracer = b.addSystemCommand(&.{"perl"});
+    gen_tracer.addFileArg(h2o_dep.path("deps/quicly/misc/probe2trace.pl"));
+    gen_tracer.addArgs(&.{ "-a", "tracer" });
     gen_tracer.setStdIn(.{ .lazy_path = h2o_dep.path("deps/quicly/quicly-probes.d") });
     const generated_header = gen_tracer.captureStdOut(.{});
     const write_files = b.addWriteFiles();

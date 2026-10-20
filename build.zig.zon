@@ -1,7 +1,7 @@
 .{
     .name = .h2o,
     .version = "0.0.1",
-    .minimum_zig_version = "0.16.0",
+    .minimum_zig_version = "0.17.0",
 
     .dependencies = .{
         .h2o = .{
@@ -21,12 +21,12 @@
             .hash = "zstd-1.5.7-2-KEItkAMwAADNhCbGaImKrjXjnSA51jcqEbGCA3RasVZ9",
         },
         .boringssl = .{
-            .url = "git+https://github.com/Ramblurr/boringssl.git?ref=h2o-zig/boringssl-0.20260813.0-pic#344fbda02c4b8e43491d632d8445bf53d2491533",
-            .hash = "boringssl-0.20260813.0-EhtkNbw1AAAUFQcMyMfTt_wNBPjR2UgNVkR3htV8lB5C",
+            .url = "git+https://github.com/Ramblurr/boringssl.git?ref=h2o-zig/zig-0.17-compat#63719151f58f8c9753defb0e57a1090cabeb8ac2",
+            .hash = "boringssl-0.20260813.0-EhtkNcI1AACtZo8UgG642VwBrNODr2U4R4JzqzCDQuPh",
         },
         .brotli_build = .{
-            .url = "git+https://github.com/Ramblurr/brotli.zig?ref=feat/pic#fe5cb9ad7bb22d13a1b9190e71966e6901885590",
-            .hash = "brotli_build-0.0.0-KJ9D22EVAADK5nnTfd8XM8Yn8tO9sGtUbfaBwl3lTM-3",
+            .url = "git+https://github.com/Ramblurr/brotli.zig.git?ref=h2o-zig/zig-0.17-compat#be89999e6feed4d69072dd9f2aa89760a4aa82b3",
+            .hash = "brotli_build-0.0.0-KJ9D2-EUAAAp9OIspI6azXuVp2z48K2Uyz9nPuWbkDWz",
         },
         .libaegis = .{
             .url = "git+https://github.com/aegis-aead/libaegis.git?ref=0.9.1#fb173f3ea32e16c1c93c43035804ba6daf3adc59",

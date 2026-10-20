@@ -66,7 +66,7 @@ Issues]
 
 You need the following installed:
 
-* https://ziglang.org/[Zig] 0.16.0
+* https://ziglang.org/[Zig] 0.17.0
 * Perl (for an h2o build step)
 
 If you have nix you can use the dev shell provided by the flake in this

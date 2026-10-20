@@ -8,7 +8,7 @@ Package H2O's built-in-event-loop C HTTP server as one position-independent stat
 
 ## Build contract
 
-- Use Zig 0.16.0. On x86_64 Linux, enter `nix develop`; the flake exposes no other host system. The shell supplies Zig, Perl, CMake, and Ninja, and sets the `APPLE_SDK_PATH` required to cross-compile to macOS from a non-macOS host.
+- Use Zig 0.17.0. On x86_64 Linux, enter `nix develop`; the flake exposes no other host system. The shell supplies Zig, Perl, CMake, and Ninja, and sets the `APPLE_SDK_PATH` required to cross-compile to macOS from a non-macOS host.
 - `build.zig.zon` pins H2O and every Zig dependency; it is the source of truth for revisions.
 - BoringSSL is the sole TLS backend.
 - Brotli and Zstandard are always enabled. AEGIS is optional with `-Duse-aegis=true` and defaults off.
