@@ -167,15 +167,12 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
         .pie = needs_pic,
     });
-    const bcm_artifact = boringssl.artifact("bcm");
     const crypto_artifact = boringssl.artifact("crypto");
     const ssl_artifact = boringssl.artifact("ssl");
     const decrepit_artifact = boringssl.artifact("decrepit");
-    bundled_archives.append(b.allocator, bcm_artifact.getEmittedBin()) catch unreachable;
     bundled_archives.append(b.allocator, crypto_artifact.getEmittedBin()) catch unreachable;
     bundled_archives.append(b.allocator, ssl_artifact.getEmittedBin()) catch unreachable;
     bundled_archives.append(b.allocator, decrepit_artifact.getEmittedBin()) catch unreachable;
-    h2o.root_module.linkLibrary(bcm_artifact);
     h2o.root_module.linkLibrary(crypto_artifact);
     h2o.root_module.linkLibrary(ssl_artifact);
     h2o.root_module.linkLibrary(decrepit_artifact);

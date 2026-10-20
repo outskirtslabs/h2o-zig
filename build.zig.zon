@@ -21,8 +21,8 @@
             .hash = "zstd-1.5.7-2-KEItkAMwAADNhCbGaImKrjXjnSA51jcqEbGCA3RasVZ9",
         },
         .boringssl = .{
-            .url = "git+https://github.com/Ramblurr/boringssl.git?ref=h2o-zig/zig-0.17-compat#63719151f58f8c9753defb0e57a1090cabeb8ac2",
-            .hash = "boringssl-0.20260813.0-EhtkNcI1AACtZo8UgG642VwBrNODr2U4R4JzqzCDQuPh",
+            .url = "git+https://github.com/Ramblurr/boringssl.git?ref=h2o-zig/boringssl-0.20260929.0-pic#3663bc2f8e2ef4bd77ea2aae6b3259d248ebca62",
+            .hash = "boringssl-0.20260929.0-EhtkNek6AABBiix4LyIvy0DTfEBPcX2pHOQRy5pSdjHt",
         },
         .brotli_build = .{
             .url = "git+https://github.com/Ramblurr/brotli.zig.git?ref=h2o-zig/zig-0.17-compat#be89999e6feed4d69072dd9f2aa89760a4aa82b3",

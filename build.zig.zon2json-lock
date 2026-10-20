@@ -29,20 +29,20 @@
     "url": "git+https://github.com/facebook/zstd.git?ref=v1.5.7#f8745da6ff1ad1e7bab384bd1f9d742439278e99",
     "hash": "sha256-h35u+KqPsc9xZQ7xJu15M4etPnBIM33NUVG4NKzMZHw="
   },
-  "boringssl-0.20260813.0-EhtkNcI1AACtZo8UgG642VwBrNODr2U4R4JzqzCDQuPh": {
+  "boringssl-0.20260929.0-EhtkNek6AABBiix4LyIvy0DTfEBPcX2pHOQRy5pSdjHt": {
     "name": "boringssl",
-    "url": "git+https://github.com/Ramblurr/boringssl.git?ref=h2o-zig/zig-0.17-compat#63719151f58f8c9753defb0e57a1090cabeb8ac2",
-    "hash": "sha256-DDW6xi7HfYKf4jSMFbSHHfM4RS8dTQUA6xUjcq45Umc="
+    "url": "git+https://github.com/Ramblurr/boringssl.git?ref=h2o-zig/boringssl-0.20260929.0-pic#3663bc2f8e2ef4bd77ea2aae6b3259d248ebca62",
+    "hash": "sha256-DSNuArQV0LYYqWJDUdp4pQA2dl+L/8QwMkIF6kNCN9g="
   },
-  "N-V-__8AAEhRag6gHL85MNqOxGFtJs5Lu9fK22BDYLMwOJs6": {
+  "N-V-__8AAMfBdQ4auND0ndV9UNczDiuUi8ej0PzNKo3jNUSP": {
     "name": "boringssl",
-    "url": "https://github.com/google/boringssl/archive/7c1efd8d6ffb36a57feba44e8c73cf674801f3cb.tar.gz",
-    "hash": "sha256-OEcC7w5ykHXdh/gYFRxMYu1zAztkoaIkT5oUDZT2Etk="
+    "url": "https://github.com/google/boringssl/archive/427ec40cc8edc545253289232e885708c409e5ea.tar.gz",
+    "hash": "sha256-k7jO2vn9qDKgL12nj3Gb0yFuCDtvaJal0vYIQWwDgR8="
   },
-  "nasm-3.0.1-B_NnpQpTAAA25UxvqONakXtmj-a78PGe3xfgyDFgetb0": {
+  "nasm-3.0.1-B_NnpSJUAABp8P_x6B1dPmYEcBVlfF06ZpyWcCvl461C": {
     "name": "nasm",
-    "url": "git+https://github.com/allyourcodebase/nasm.git#d7356eadb2d7771542fe74e8fc0668bd78732b59",
-    "hash": "sha256-8a6ByK+/yV6Q1Qfib+R5VycenUhIHuydRdNRSXc8xa8="
+    "url": "git+https://github.com/allyourcodebase/nasm.git#f11aa6ed5a7eb339259b3439b3e47d58dba998cc",
+    "hash": "sha256-bu7jwFDx9m2qJ6AVuLwRzNFi+Xp1fQeERVBTXd1Dh44="
   },
   "N-V-__8AAEAMKAFrNesgN6ZM9sxj37fq_i7UJe5nKkLmyRJI": {
     "name": "nasm",
