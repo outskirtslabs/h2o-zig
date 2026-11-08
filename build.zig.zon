@@ -13,8 +13,8 @@
             .hash = "N-V-__8AADdLBADNETOk9pvYZ-k7F8a08-U43YCrYSlxu621",
         },
         .zlib = .{
-            .url = "git+https://github.com/allyourcodebase/zlib.git#3599c16d41dbe749ae51b0ff7ab864c61adc779a",
-            .hash = "zlib-1.3.1-ZZQ7lc8NAABUbHzDe_cSWboCqMbrLkVwvFkKnojgeiT2",
+            .url = "git+https://github.com/Ramblurr/zlib.git?ref=update/zlib-1.4#fbea45afd7d7f0dbc93226e6f9f80b2c9ba0be6c",
+            .hash = "zlib-2.1.0+1.4-ZZQ7lf0NAAB3lIFZVRncab_ac6SxbCOXie12TRPZzppi",
         },
         .zstd = .{
             .url = "git+https://github.com/allyourcodebase/zstd.git?ref=1.5.7-2#4ccb01e6fceae86fb9fe36c60b8a103cdc058155",
