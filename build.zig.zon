@@ -29,8 +29,8 @@
             .hash = "brotli_build-0.0.0-KJ9D29oUAADRGePP9bPJlwRxtvoHIFHOPJi8MuC7vuTN",
         },
         .libaegis = .{
-            .url = "git+https://github.com/aegis-aead/libaegis.git?ref=0.9.1#fb173f3ea32e16c1c93c43035804ba6daf3adc59",
-            .hash = "aegis-0.9.1-wT2IxXLgBwAiIFRReUw-ir8qU5aCUYAgYfaVDd8OFrtg",
+            .url = "git+https://github.com/Ramblurr/libaegis.git?ref=h2o-zig/libaegis-0.10.6-zig18-pic-v2#acea876fc14591fdeb38b9652a4d709f07c3f2c7",
+            .hash = "aegis-0.10.6-wT2IxRWSDgDHubqXiWothK02alZTIXV6zRW9jzKqcAYv",
             .lazy = true,
         },
     },

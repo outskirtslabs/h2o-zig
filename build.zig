@@ -191,6 +191,7 @@ pub fn build(b: *std.Build) void {
     if (use_aegis) {
         if (b.lazyDependency("libaegis", .{
             .target = target,
+            .optimize = optimize,
         })) |libaegis| {
             const aegis_lib = libaegis.artifact("aegis");
             h2o.root_module.linkLibrary(aegis_lib);
