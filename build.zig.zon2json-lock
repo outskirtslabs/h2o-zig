@@ -74,15 +74,15 @@
     "url": "https://github.com/google/googletest/archive/refs/tags/v1.17.0.tar.gz",
     "hash": "sha256-1lPv+qJRRDsc7CnNWxKiWMXQBN6VLCp5X3NfWEB3k6w="
   },
-  "brotli_build-0.0.0-KJ9D2-EUAAAp9OIspI6azXuVp2z48K2Uyz9nPuWbkDWz": {
+  "brotli_build-0.0.0-KJ9D29oUAADRGePP9bPJlwRxtvoHIFHOPJi8MuC7vuTN": {
     "name": "brotli_build",
-    "url": "git+https://github.com/Ramblurr/brotli.zig.git?ref=h2o-zig/zig-0.17-compat#be89999e6feed4d69072dd9f2aa89760a4aa82b3",
-    "hash": "sha256-brRjflMjtj4pFn+yLZiukbabO2QrkzheXWk0S2F7Nlc="
+    "url": "git+https://github.com/Ramblurr/brotli.zig.git?ref=h2o-zig/brotli-1.2.1#d61beace81284ee7ffa6a908b571f4b4ea75b88c",
+    "hash": "sha256-1shs9pqIitQeaMOpJzlldpjbFMn2URH4tAmHmg17Eak="
   },
-  "N-V-__8AAI2b6QPVus14oqoaXFGvvUMDwBA0vE-y0XaApMDn": {
+  "N-V-__8AAJ5n8QMUF3N9loc3jLuVNcPJuWEqOVr2ZqQy_CsF": {
     "name": "brotli",
-    "url": "git+https://github.com/google/brotli?ref=master#440e03642b891968a76b6d088d70f01f06e0c349",
-    "hash": "sha256-0K3/ubewFP8PyyeCyKo6/NyrWmuLvbNPRsOeeG3fDwM="
+    "url": "git+https://github.com/google/brotli?ref=v1.2.1#db24a98aed38a16de78cc05ca15cdd8dc2a0d92d",
+    "hash": "sha256-/VxrwdOiv9iNbncw48HSyDXCtXO3b+tGlwyfDhv+/Rs="
   },
   "aegis-0.9.1-wT2IxXLgBwAiIFRReUw-ir8qU5aCUYAgYfaVDd8OFrtg": {
     "name": "libaegis",

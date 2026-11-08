@@ -25,8 +25,8 @@
             .hash = "boringssl-0.20260929.0-EhtkNek6AABBiix4LyIvy0DTfEBPcX2pHOQRy5pSdjHt",
         },
         .brotli_build = .{
-            .url = "git+https://github.com/Ramblurr/brotli.zig.git?ref=h2o-zig/zig-0.17-compat#be89999e6feed4d69072dd9f2aa89760a4aa82b3",
-            .hash = "brotli_build-0.0.0-KJ9D2-EUAAAp9OIspI6azXuVp2z48K2Uyz9nPuWbkDWz",
+            .url = "git+https://github.com/Ramblurr/brotli.zig.git?ref=h2o-zig/brotli-1.2.1#d61beace81284ee7ffa6a908b571f4b4ea75b88c",
+            .hash = "brotli_build-0.0.0-KJ9D29oUAADRGePP9bPJlwRxtvoHIFHOPJi8MuC7vuTN",
         },
         .libaegis = .{
             .url = "git+https://github.com/aegis-aead/libaegis.git?ref=0.9.1#fb173f3ea32e16c1c93c43035804ba6daf3adc59",
