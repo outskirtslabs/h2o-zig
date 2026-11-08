@@ -1,8 +1,8 @@
 {
-  "N-V-__8AAMZmoQEcaTA0JFZ27s2QpGRir0f6pqMkaL2WqiG-": {
+  "N-V-__8AAGK4qAF7x8tL6nPcZho57kS95eRHBwG5xlMIyrA8": {
     "name": "h2o",
-    "url": "git+https://github.com/h2o/h2o.git?ref=master#7a5ede4baec1bb7f2c6bf4efdcb3eebd1bc2aaa7",
-    "hash": "sha256-7aHTQvxHijGZ8D8rr9zLQVcYwEefcYQp5KDb2gQVunM="
+    "url": "git+https://github.com/h2o/h2o.git?ref=master#8c26dae337fd75494d514dd89ce5ae73e774ba65",
+    "hash": "sha256-tdcdYUCDDuISYRRE13M72bsvU+v8VRHvKgLOsJsPPDg="
   },
   "N-V-__8AADdLBADNETOk9pvYZ-k7F8a08-U43YCrYSlxu621": {
     "name": "wslay",
