@@ -1,7 +1,7 @@
 .{
     .name = .h2o,
     .version = "0.0.1",
-    .minimum_zig_version = "0.17.0",
+    .minimum_zig_version = "0.18.0-dev.935+ead8f5a7a",
 
     .dependencies = .{
         .h2o = .{

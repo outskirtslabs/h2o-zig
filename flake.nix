@@ -63,11 +63,9 @@
       devShell =
         pkgs:
         let
-          zig = zig2nix.packages.${pkgs.system}."zig-0_17_0";
-          zig2nixEnv = zig2nix.outputs.zig-env.${pkgs.system} {
-            # zig2nix's fetch/unpack logic still requires Zig 0.16.
-            zig = zig2nix.packages.${pkgs.system}."zig-0_16_0";
-          };
+          zig = zig2nix.packages.${pkgs.system}.zig-master;
+          # zig-master is immutable through flake.lock.
+          zig2nixEnv = zig2nix.outputs.zig-env.${pkgs.system} { inherit zig; };
           apple-sdk = (self.packages.${pkgs.system}.apple-sdk);
           libaegis = (self.packages.${pkgs.system}.libaegis);
           # Libraries needed for h2o cmake build
@@ -99,8 +97,8 @@
             # This is all we need for the zig build
             zig
             (pkgs.writeShellScriptBin "zig2nix" ''
-              # Zig 0.16 and 0.17 produce different cache tarballs for the same package hash.
-              export ZIG_GLOBAL_CACHE_DIR="$(${pkgs.coreutils}/bin/realpath -m "''${ZIG_GLOBAL_CACHE_DIR:-$PWD/.zig-cache-global}/zig2nix-0.16")"
+              # zig2nix changes working directory while fetching; use an absolute, versioned cache.
+              export ZIG_GLOBAL_CACHE_DIR="$(${pkgs.coreutils}/bin/realpath -m "''${ZIG_GLOBAL_CACHE_DIR:-$PWD/.zig-cache-global}/zig2nix-0.18")"
               exec ${zig2nixEnv.zig2nix}/bin/zig2nix "$@"
             '')
             pkgs.git
