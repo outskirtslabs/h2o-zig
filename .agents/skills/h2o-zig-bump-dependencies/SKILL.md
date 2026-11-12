@@ -48,7 +48,7 @@ Use the matching branch:
   boringssl_commit=$(git -C vendor/boringssl-src rev-parse "refs/tags/$version^{}")
   ```
 
-  Use the peeled commit in the source archive URL. In `vendor/boringssl`, base `update/boringssl-$version` on wrapper `upstream/main` and keep it version-only. Stack `h2o-zig/boringssl-$version-pic` on that branch with only h2o-zig's PIC support. Keep reading `gen/sources.json` from the source dependency. Validate both branches, obtain review, publish them, and verify the approved PIC commit exists remotely. Pin the outer h2o-zig package to that published PIC commit.
+  Use the peeled commit in the source archive URL. In `vendor/boringssl`, base `update/boringssl-$version` on wrapper `upstream/main` and keep it version-only. Stack `h2o-zig/boringssl-$version-pic` on that branch with only h2o-zig's two downstream commits: PIC support, and removal of the translate-c patch step and its `patch` dependency, which downloads GNU patch from `mirrors.kernel.org`. Keep reading `gen/sources.json` from the source dependency. Validate both branches, obtain review, publish them, and verify the approved PIC commit exists remotely. Pin the outer h2o-zig package to that published PIC commit.
 - **Other dependencies:** inspect the upstream release diff and preserve the existing artifact, feature, target, and PIC contract. When a maintained fork is required, preserve its existing upstream/project patch split and publish the exact reviewed commit that h2o-zig will consume.
 
 **Complete when:** the upstream or wrapper commit that h2o-zig will consume is final and, for a fork, reviewed and available remotely.

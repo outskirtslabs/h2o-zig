@@ -29,10 +29,10 @@
     "url": "git+https://github.com/facebook/zstd.git?ref=v1.5.7#f8745da6ff1ad1e7bab384bd1f9d742439278e99",
     "hash": "sha256-h35u+KqPsc9xZQ7xJu15M4etPnBIM33NUVG4NKzMZHw="
   },
-  "boringssl-0.20261105.0-EhtkNek6AABtX_OODjTW_VvEVhBjLKuiMBG8NgGzSCVo": {
+  "boringssl-0.20261105.0-EhtkNTQ1AADKx8ZO75HAt0GTksOmAT4-Shqwg7HjfofM": {
     "name": "boringssl",
-    "url": "git+https://github.com/Ramblurr/boringssl.git?ref=h2o-zig/boringssl-0.20261105.0-pic#12c89e13879e387d8dc7d9b194eaab73c76eeabd",
-    "hash": "sha256-XBkCZQCX5MsG6GJmu7BCxLCmYf7NZ1iPv6tlCeOXcOs="
+    "url": "git+https://github.com/Ramblurr/boringssl.git?ref=h2o-zig/boringssl-0.20261105.0-pic#37355b67728e80e48d11803cbf9d7c3a8ab82b9a",
+    "hash": "sha256-Wu6yup74FfWA/8R8gly4GedPAaV1XedSDQy1aB69y/w="
   },
   "N-V-__8AAOmbgA5EZOl7Ab5SwaV3OYkpkxc8qGL5-G75QWBM": {
     "name": "boringssl",
@@ -58,16 +58,6 @@
     "name": "zlib",
     "url": "https://github.com/madler/zlib/archive/refs/tags/v1.3.1.tar.gz",
     "hash": "sha256-r+38IdpUhv5xJKjejPSW+RLa+43nQ8ndkhmB0IR0gek="
-  },
-  "patch-2.6.1-po1jOedqAADkiQDv3hXHuQBDzGLVhCfrp38vXHB6xZ1W": {
-    "name": "patch",
-    "url": "git+https://github.com/akunaakwei/zig-patch#918b45387bb0e8afe629984faf2353fab0efab21",
-    "hash": "sha256-PWCXh1SRg3C+NWFNBW8rt8EG+afQ6ZZZRrVgRnu7INk="
-  },
-  "N-V-__8AAJPSEgDcozcxiSvegfkjtNmn6GcEB8wT_c3xq86P": {
-    "name": "patch",
-    "url": "https://mirrors.kernel.org/gnu/patch/patch-2.6.1.tar.gz",
-    "hash": "sha256-Z/gqNmUwjlTxaa3dmYQG59AiJp2hFMe5Yl4gOhQva0k="
   },
   "googletest-1.15.2-vLU55pAVAADd_J-vQKNwzEvPw695vo8YgmJmZyUkA0zX": {
     "name": "googletest",
