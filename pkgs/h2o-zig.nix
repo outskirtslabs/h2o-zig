@@ -7,7 +7,7 @@
 let
   system = stdenv.hostPlatform.system;
   root = toString ../.;
-  zig = zig2nix.packages.${system}.zig-master;
+  zig = zig2nix.packages.${system}.zig-0_17_1;
   zig2nixEnv = zig2nix.outputs.zig-env.${system} { inherit zig; };
 in
 zig2nixEnv.package {

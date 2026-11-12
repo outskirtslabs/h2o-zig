@@ -11,7 +11,7 @@ compatibility. Check the notes below for breaking changes warnings.
 
 == Unreleased
 
-* Require Zig 0.18.0-dev.935{plus}ead8f5a7a.
+* Require Zig 0.17.1.
 * Update H2O to upstream master `d19f742b00a4bb71207524f2eed99464854d24cd`.
 * Update BoringSSL to `0.20261105.0`, Brotli to 1.2.1, zlib to 1.4, and
   libaegis to 0.10.6.

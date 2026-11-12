@@ -63,8 +63,7 @@
       devShell =
         pkgs:
         let
-          zig = zig2nix.packages.${pkgs.system}.zig-master;
-          # zig-master is immutable through flake.lock.
+          zig = zig2nix.packages.${pkgs.system}.zig-0_17_1;
           zig2nixEnv = zig2nix.outputs.zig-env.${pkgs.system} { inherit zig; };
           apple-sdk = (self.packages.${pkgs.system}.apple-sdk);
           libaegis = (self.packages.${pkgs.system}.libaegis);
@@ -98,7 +97,7 @@
             zig
             (pkgs.writeShellScriptBin "zig2nix" ''
               # zig2nix changes working directory while fetching; use an absolute, versioned cache.
-              export ZIG_GLOBAL_CACHE_DIR="$(${pkgs.coreutils}/bin/realpath -m "''${ZIG_GLOBAL_CACHE_DIR:-$PWD/.zig-cache-global}/zig2nix-0.18")"
+              export ZIG_GLOBAL_CACHE_DIR="$(${pkgs.coreutils}/bin/realpath -m "''${ZIG_GLOBAL_CACHE_DIR:-$PWD/.zig-cache-global}/zig2nix-0.17")"
               exec ${zig2nixEnv.zig2nix}/bin/zig2nix "$@"
             '')
             pkgs.git
