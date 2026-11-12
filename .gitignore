@@ -8,3 +8,4 @@ vendor/
 zig-pkg
 .clj-kondo
 .lsp
+docs/agents
