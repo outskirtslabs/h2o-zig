@@ -35,6 +35,10 @@ done
 nix flake check --print-build-logs
 ```
 
+## Merging
+
+Land changes on `main` only by fast-forward: rebase onto `main`, then push the commits unchanged. Never create merge commits; GitHub's merge, squash, and rebase buttons all rewrite or add commits.
+
 ## Local checkout safety
 
 `h2o/` is an independent, ignored Git checkout for developing H2O patches, examples, and upstream PRs. It is not the source used by `zig build`; the Zig build fetches the revision pinned in `build.zig.zon`. Preserve its branches and untracked experiments—never clean or reset it casually.
