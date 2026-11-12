@@ -79,9 +79,9 @@
     "url": "git+https://github.com/google/brotli?ref=v1.2.1#db24a98aed38a16de78cc05ca15cdd8dc2a0d92d",
     "hash": "sha256-/VxrwdOiv9iNbncw48HSyDXCtXO3b+tGlwyfDhv+/Rs="
   },
-  "aegis-0.10.6-wT2IxRWSDgDHubqXiWothK02alZTIXV6zRW9jzKqcAYv": {
+  "aegis-0.10.6-wT2IxU6RDgDqkHmsL7nNh8piDYLVnT8dPMHD8l9kdSfC": {
     "name": "libaegis",
-    "url": "git+https://github.com/Ramblurr/libaegis.git?ref=h2o-zig/libaegis-0.10.6-zig18-pic-v2#acea876fc14591fdeb38b9652a4d709f07c3f2c7",
-    "hash": "sha256-KPuWwozqY2U0au43+R++CMT5M73KOKi0ZeGyaFqFgB0="
+    "url": "git+https://github.com/Ramblurr/libaegis.git?ref=h2o-zig/libaegis-0.10.6-pic-v3#d2a7f904b2c4dadbcab2ee55ebb60471713afa93",
+    "hash": "sha256-Ze5DmILr/xu30uSqdsSrp9TX09zzyCI7bmqEHM4df/E="
   }
 }
