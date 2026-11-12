@@ -1,11 +1,13 @@
 ---
 name: h2o-zig-bump-dependencies
-description: Bumps dependencies pinned in build.zig.zon. Use when updating H2O, BoringSSL, or any other dependency in h2o-zig.
+description: Bumps dependencies pinned in build.zig.zon. Use when updating H2O, BoringSSL, or any other dependency in h2o-zig, including the scheduled daily dependency run.
 ---
 
 # Bump dependencies
 
 Follow the build contract and checkout-safety rules in `AGENTS.md`.
+
+For the scheduled daily run, read [scheduled.md](scheduled.md) first; its rules decide what to update, publish, and report.
 
 ## 1. Establish the new pin
 
