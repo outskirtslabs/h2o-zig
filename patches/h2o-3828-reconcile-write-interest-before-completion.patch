@@ -1,0 +1,14 @@
+Reconcile write interest before write-completion callbacks
+
+https://github.com/h2o/h2o/issues/3828
+
+--- a/lib/common/socket/evloop.c.h
++++ b/lib/common/socket/evloop.c.h
+@@ -866,6 +866,7 @@
+             }
+             sock->_flags &= ~(H2O_SOCKET_FLAG_IS_CONNECTING | H2O_SOCKET_FLAG_IS_CONNECTING_CONNECTED);
+         }
++        link_to_statechanged(sock);
+         on_write_complete(&sock->super, err);
+     }
+ }
