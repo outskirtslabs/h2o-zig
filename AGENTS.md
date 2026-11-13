@@ -37,7 +37,10 @@ nix flake check --print-build-logs
 
 ## Merging
 
-Land changes on `main` only by fast-forward: rebase onto `main`, then push the commits unchanged. Never create merge commits; GitHub's merge, squash, and rebase buttons all rewrite or add commits.
+- Land changes on `main` only by fast-forward: rebase onto `main`, then push the commits unchanged.
+- Never create merge commits. GitHub's merge, squash, and rebase buttons all rewrite or add commits.
+- When a remote main is updated (example: PR lands), always pull and make sure local tree matches
+- Keep both h2o-zig origin/remote main branches in sync
 
 ## Local checkout safety
 
