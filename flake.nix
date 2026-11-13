@@ -47,12 +47,12 @@
           pkgs:
           pkgs.stdenv.mkDerivation {
             pname = "libaegis";
-            version = "0.10.6";
+            version = "0.10.7";
             src = pkgs.fetchFromGitHub {
               owner = "aegis-aead";
               repo = "libaegis";
-              rev = "0.10.6";
-              hash = "sha256-0PxwKDvbuAP0BZ6xvFRRSP71hKGsuc8qa9yQe9fsxYw=";
+              rev = "0.10.7";
+              hash = "sha256-eWLgYnYFgSzy8o55X88e4OEDfWh6JD0ECrexMdRclHE=";
             };
             nativeBuildInputs = [ pkgs.cmake ];
             cmakeFlags = [ "-DCMAKE_INSTALL_PREFIX=${placeholder "out"}" ];
