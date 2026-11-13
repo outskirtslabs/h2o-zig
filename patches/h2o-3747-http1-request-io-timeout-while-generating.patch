@@ -1,0 +1,167 @@
+From 71fbf1f62cc8f71be8b39818fda6b3f335bf2176 Mon Sep 17 00:00:00 2001
+From: Max Penet <mpenet@s-exp.com>
+Date: Wed, 21 Oct 2026 09:20:46 +0200
+Subject: [PATCH] Add http1-request-io-timeout-while-generating
+
+http1-request-io-timeout is armed around each response write but is not
+disarmed once the write completes, so it also covers the time the
+generator takes to provide the next part of the response. A streamed
+response that is idle for longer than the timeout between two chunks
+(e.g. Server-Sent Events, long polling) has its connection closed.
+
+t/40http1-timeouts.t relies on this behavior, so keep it as the default
+and add a boolean directive to opt out: when OFF, the timeout stops once
+a write completes and is rearmed by the next write, unless the request
+body is still being received. Reading the request and writing the
+response remain covered.
+---
+ include/h2o.h                        |  6 ++++++
+ lib/core/config.c                    |  1 +
+ lib/core/configurator.c              | 13 +++++++++++++
+ lib/http1.c                          | 12 +++++++++---
+ srcdoc/configure/http1_directives.mt | 13 +++++++++++++
+ t/40http1-timeouts.t                 | 18 ++++++++++++++++++
+ 6 files changed, 60 insertions(+), 3 deletions(-)
+
+diff --git a/include/h2o.h b/include/h2o.h
+index 61bc82792e..b1d466f3af 100644
+--- a/include/h2o.h
++++ b/include/h2o.h
+@@ -80,6 +80,7 @@ extern "C" {
+ #define H2O_DEFAULT_HTTP1_REQ_TIMEOUT (H2O_DEFAULT_HTTP1_REQ_TIMEOUT_IN_SECS * 1000)
+ #define H2O_DEFAULT_HTTP1_REQ_IO_TIMEOUT_IN_SECS 5
+ #define H2O_DEFAULT_HTTP1_REQ_IO_TIMEOUT (H2O_DEFAULT_HTTP1_REQ_IO_TIMEOUT_IN_SECS * 1000)
++#define H2O_DEFAULT_HTTP1_REQ_IO_TIMEOUT_WHILE_GENERATING 1
+ #define H2O_DEFAULT_HTTP1_UPGRADE_TO_HTTP2 1
+ #define H2O_DEFAULT_HTTP2_IDLE_TIMEOUT_IN_SECS 10
+ #define H2O_DEFAULT_HTTP2_IDLE_TIMEOUT (H2O_DEFAULT_HTTP2_IDLE_TIMEOUT_IN_SECS * 1000)
+@@ -414,6 +415,11 @@ struct st_h2o_globalconf_t {
+          * request io timeout (in milliseconds)
+          */
+         uint64_t req_io_timeout;
++        /**
++         * a boolean value indicating whether or not req_io_timeout also applies while waiting for the generator to provide the
++         * next part of the response (e.g., a streamed response that is idle between chunks)
++         */
++        int req_io_timeout_while_generating;
+         /**
+          * a boolean value indicating whether or not to upgrade to HTTP/2
+          */
+diff --git a/lib/core/config.c b/lib/core/config.c
+index 7dd70b3d77..01d204899b 100644
+--- a/lib/core/config.c
++++ b/lib/core/config.c
+@@ -183,6 +183,7 @@ void h2o_config_init(h2o_globalconf_t *config)
+     config->handshake_timeout = H2O_DEFAULT_HANDSHAKE_TIMEOUT;
+     config->http1.req_timeout = H2O_DEFAULT_HTTP1_REQ_TIMEOUT;
+     config->http1.req_io_timeout = H2O_DEFAULT_HTTP1_REQ_IO_TIMEOUT;
++    config->http1.req_io_timeout_while_generating = H2O_DEFAULT_HTTP1_REQ_IO_TIMEOUT_WHILE_GENERATING;
+     config->http1.upgrade_to_http2 = H2O_DEFAULT_HTTP1_UPGRADE_TO_HTTP2;
+     config->http2.idle_timeout = H2O_DEFAULT_HTTP2_IDLE_TIMEOUT;
+     config->http2.graceful_shutdown_timeout = H2O_DEFAULT_HTTP2_GRACEFUL_SHUTDOWN_TIMEOUT;
+diff --git a/lib/core/configurator.c b/lib/core/configurator.c
+index 73bb6b743c..a46235972b 100644
+--- a/lib/core/configurator.c
++++ b/lib/core/configurator.c
+@@ -438,6 +438,16 @@ static int on_config_http1_request_io_timeout(h2o_configurator_command_t *cmd, h
+     return config_timeout(cmd, node, &ctx->globalconf->http1.req_io_timeout);
+ }
+ 
++static int on_config_http1_request_io_timeout_while_generating(h2o_configurator_command_t *cmd, h2o_configurator_context_t *ctx,
++                                                                yoml_t *node)
++{
++    ssize_t ret = h2o_configurator_get_one_of(cmd, node, "OFF,ON");
++    if (ret == -1)
++        return -1;
++    ctx->globalconf->http1.req_io_timeout_while_generating = (int)ret;
++    return 0;
++}
++
+ static int on_config_http1_upgrade_to_http2(h2o_configurator_command_t *cmd, h2o_configurator_context_t *ctx, yoml_t *node)
+ {
+     ssize_t ret = h2o_configurator_get_one_of(cmd, node, "OFF,ON");
+@@ -1077,6 +1087,9 @@ void h2o_configurator__init_core(h2o_globalconf_t *conf)
+         h2o_configurator_define_command(&c->super, "http1-request-io-timeout",
+                                         H2O_CONFIGURATOR_FLAG_GLOBAL | H2O_CONFIGURATOR_FLAG_EXPECT_SCALAR,
+                                         on_config_http1_request_io_timeout);
++        h2o_configurator_define_command(&c->super, "http1-request-io-timeout-while-generating",
++                                        H2O_CONFIGURATOR_FLAG_GLOBAL | H2O_CONFIGURATOR_FLAG_EXPECT_SCALAR,
++                                        on_config_http1_request_io_timeout_while_generating);
+         h2o_configurator_define_command(&c->super, "http1-upgrade-to-http2",
+                                         H2O_CONFIGURATOR_FLAG_GLOBAL | H2O_CONFIGURATOR_FLAG_EXPECT_SCALAR,
+                                         on_config_http1_upgrade_to_http2);
+diff --git a/lib/http1.c b/lib/http1.c
+index ba52fe2940..79c1df1d4c 100644
+--- a/lib/http1.c
++++ b/lib/http1.c
+@@ -846,10 +846,16 @@ static void on_send_next(h2o_socket_t *sock, const char *err)
+         return;
+     }
+ 
+-    if (err != NULL)
++    if (err != NULL) {
+         close_connection(conn, 1);
+-    else
+-        h2o_proceed_response(&conn->req);
++        return;
++    }
++
++    /* The write is complete; the timeout is rearmed when the next one starts. Unless configured to cover the wait for the
++     * generator as well, it stops here, except while the request body is still being received. */
++    if (!conn->super.ctx->globalconf->http1.req_io_timeout_while_generating && conn->req.proceed_req == NULL)
++        set_req_io_timeout(conn, 0, NULL);
++    h2o_proceed_response(&conn->req);
+ }
+ 
+ static void on_send_complete_post_trailers(h2o_socket_t *sock, const char *err)
+diff --git a/srcdoc/configure/http1_directives.mt b/srcdoc/configure/http1_directives.mt
+index 94310302e8..b131e9c490 100644
+--- a/srcdoc/configure/http1_directives.mt
++++ b/srcdoc/configure/http1_directives.mt
+@@ -22,6 +22,19 @@ $ctx->{directive}->(
+     desc    => q{Timeout for incoming request I/O in seconds.},
+ )->(sub {});
+ 
++$ctx->{directive}->(
++    name    => "http1-request-io-timeout-while-generating",
++    levels  => [ qw(global) ],
++    default => 'http1-request-io-timeout-while-generating: ON',
++    desc    => q{Boolean flag (<code>ON</code> or <code>OFF</code>) indicating whether <code>http1-request-io-timeout</code> also applies while waiting for the response to be generated.},
++)->(sub {
++?>
++<p>
++When set to <code>OFF</code>, the timeout covers reading the request and each write of the response, but not the time between writes during which the response is being generated.
++This allows streamed responses that stay idle for long periods, such as Server-Sent Events, to be served without closing their connections after <code>http1-request-io-timeout</code>.
++</p>
++? })
++
+ $ctx->{directive}->(
+     name    => "http1-upgrade-to-http2",
+     levels  => [ qw(global) ],
+diff --git a/t/40http1-timeouts.t b/t/40http1-timeouts.t
+index ec970fddf1..47d4cded08 100644
+--- a/t/40http1-timeouts.t
++++ b/t/40http1-timeouts.t
+@@ -61,4 +61,22 @@ $conffn = build_test(8, 1);
+ $res = `curl -X POST -d \@$conffn -svo /dev/null http://127.0.0.1:$port/custom-perl 2>&1 > /dev/null`;
+ like $res, qr{Connection.*to host 127\.0\.0\.1(?::\d+)? left intact}, "connection was closed";
+ 
++subtest "http1-request-io-timeout-while-generating: OFF" => sub {
++    my $server = spawn_h2o(<< "EOT");
++http1-request-io-timeout: 2
++http1-request-io-timeout-while-generating: OFF
++http1-request-timeout: 5
++hosts:
++  default:
++    paths:
++      /:
++        proxy.reverse.url: https://127.0.0.1:$upstream_port
++        proxy.ssl.verify-peer: OFF
++        proxy.timeout.io: 1000000
++EOT
++    my $conffn = build_test(1, 3);
++    my $res = `curl -X POST -d \@$conffn -svo /dev/null http://127.0.0.1:$server->{port}/custom-perl 2>&1 > /dev/null`;
++    like $res, qr{Connection.*to host 127\.0\.0\.1(?::\d+)? left intact}, "waiting for the response is not timed out";
++};
++
+ done_testing();

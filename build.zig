@@ -92,6 +92,32 @@ fn addWslay(
     };
 }
 
+const h2o_patches = [_][]const u8{
+    "patches/h2o-3747-http1-request-io-timeout-while-generating.patch",
+};
+
+const PatchedSource = struct {
+    b: *std.Build,
+    root: std.Build.LazyPath,
+
+    fn path(self: PatchedSource, sub_path: []const u8) std.Build.LazyPath {
+        return self.root.path(self.b, sub_path);
+    }
+};
+
+/// Copies `dep` into the cache and applies `patches` in order; any patch that fails to apply fails the build.
+fn patchSource(b: *std.Build, dep: *std.Build.Dependency, patches: []const []const u8) PatchedSource {
+    const run = b.addSystemCommand(&.{ "sh", "-ec",
+        \\src=$1 out=$2; shift 2
+        \\cp -R "$src/." "$out"; chmod -R u+w "$out"
+        \\for p; do patch -s -d "$out" -p1 --forward --batch < "$p" >&2 || { echo "failed to apply $p" >&2; exit 1; }; done
+    , "sh" });
+    run.addDirectoryArg(dep.path(""));
+    const root = run.addOutputDirectoryArg("src");
+    for (patches) |p| run.addFileArg(b.path(p));
+    return .{ .b = b, .root = root };
+}
+
 pub fn build(b: *std.Build) void {
     const use_aegis = b.option(bool, "use-aegis", "Enable AEGIS AEAD ciphers via libaegis (default: false)") orelse false;
 
@@ -102,7 +128,7 @@ pub fn build(b: *std.Build) void {
     const is_linux = target.result.os.tag == .linux;
     const is_macos_cross = target.result.os.tag == .macos and @import("builtin").os.tag != .macos;
 
-    const h2o_dep = b.dependency("h2o", .{});
+    const h2o_dep = patchSource(b, b.dependency("h2o", .{}), &h2o_patches);
     const zlib = b.dependency("zlib", .{
         .target = target,
         .optimize = optimize,
