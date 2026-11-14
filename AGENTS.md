@@ -41,12 +41,15 @@ nix flake check --print-build-logs
 - Never create merge commits. GitHub's merge, squash, and rebase buttons all rewrite or add commits.
 - When a remote main is updated (example: PR lands), always pull and make sure local tree matches
 - Keep both h2o-zig origin/remote main branches in sync
+- Keep https://github.com/outskirtslabs/h2o-zig/issues/1 current whenever patches, fork pins, or upstream issues and PRs change; tick finished items, never delete them.
 
 ## Local checkout safety
 
 `h2o/` is an independent, ignored Git checkout for developing H2O patches, examples, and upstream PRs. It is not the source used by `zig build`; the Zig build fetches the revision pinned in `build.zig.zon`. Preserve its branches and untracked experiments—never clean or reset it casually.
 
 `vendor/` contains similar independent checkouts used to develop or test dependency patches and upstream PRs. They are not package inputs unless `build.zig.zon` points to their published commits. Preserve their local state too.
+
+For upstream PR work, create Git worktrees inside the checkout's own `.worktrees/` (for example `h2o/.worktrees/<name>`, `vendor/picotls/.worktrees/<name>`), branched from the upstream remote's default branch; never put them in this repository's root or beside it.
 
 ## Project map
 
