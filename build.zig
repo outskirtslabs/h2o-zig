@@ -95,6 +95,7 @@ fn addWslay(
 const h2o_patches = [_][]const u8{
     "patches/h2o-3747-http1-request-io-timeout-while-generating.patch",
     "patches/h2o-3828-reconcile-write-interest-before-completion.patch",
+    "patches/h2o-3856-skip-zero-length-recvbuf-memcpy.patch",
 };
 
 const PatchedSource = struct {
