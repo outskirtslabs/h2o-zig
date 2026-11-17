@@ -4,27 +4,30 @@ A T3 schedule starts this run daily at 05:00 in a fresh thread. No human answers
 
 ## 1. Find updates
 
-Check every entry in `build.zig.zon`, including lazy ones, and the flake inputs:
+Run `git fetch --multiple upstream origin`. If `main` is behind `upstream/main` by a fast-forward only, run `git -C <root> merge --ff-only upstream/main` (`<root>` is the main checkout: `dirname "$(git rev-parse --git-common-dir)"`) and `git push origin upstream/main:main`; if the root checkout is dirty or not on `main`, report it instead.
+
+Compare against the pins on `upstream/main`, not the current checkout. Check every entry in `build.zig.zon`, including lazy ones, and the flake inputs:
 
 - H2O: latest `upstream/master`.
 - Everything else: latest stable release, never a prerelease.
-- Wrapper forks, which package someone else's library for Zig (`Ramblurr/boringssl`): also upstream wrapper commits the fork lacks that change a file in the fork's `build.zig.zon` `.paths`. Commits touching only other files, such as README or CI, do not count.
+- Wrapper forks, which package someone else's library for Zig (`Ramblurr/boringssl`): also upstream wrapper commits the fork lacks that change a file in the fork's `build.zig.zon` `.paths`. Only `git -C vendor/<fork> log <pin>..upstream/HEAD -- <paths>` output counts.
 - Library forks, which fork the library itself (`Ramblurr/libaegis`): stable releases only.
 - Flake inputs: all except `zig2nix`, which selects Zig:
 
   ```bash
-  nix flake update $(nix flake metadata --json | jq -r '.locks.nodes.root.inputs | keys[] | select(. != "zig2nix")')
+  lock=$(mktemp)
+  nix flake update --output-lock-file "$lock" $(nix flake metadata --json | jq -r '.locks.nodes.root.inputs | keys[] | select(. != "zig2nix")')
+  git show upstream/main:flake.lock | diff -q - "$lock"
   ```
 
-If nothing is new, report `No updates.` and stop.
+If nothing is new, report only `No updates` and stop.
 
 Complete when: every dependency has a current and a target revision.
 
 ## 2. Set up the workspace
 
-1. Run `git fetch --multiple upstream origin`.
-2. If `gh pr list --repo outskirtslabs/h2o-zig --state open --search "head:deps/"` finds a PR, continue on its branch, rebased onto `upstream/main` if that has moved; PRs merge by fast-forward only. Otherwise run `git worktree add .worktrees/deps-YYYY-MM-DD -b deps/YYYY-MM-DD upstream/main`.
-3. For a fork, add a worktree beside its checkout: `git -C vendor/<fork> worktree add ../<fork>-deps-YYYY-MM-DD <base>`.
+1. If `gh pr list --repo outskirtslabs/h2o-zig --state open --search "head:deps/"` finds a PR, continue on its branch, rebased onto `upstream/main` if that has moved; PRs merge by fast-forward only. Otherwise run `git worktree add .worktrees/deps-YYYY-MM-DD -b deps/YYYY-MM-DD upstream/main`.
+2. For a fork, add a worktree beside its checkout: `git -C vendor/<fork> worktree add ../<fork>-deps-YYYY-MM-DD <base>`.
 
 Edit only run worktrees, never the root, `h2o/`, or `vendor/*` checkouts. Stage files by name; `git add -A` or `git add .` would commit the devshell's `.zig-cache-global/`.
 
@@ -52,10 +55,10 @@ Complete when: every update is committed and classified.
 
 Push the `deps/` branch to `upstream` and open a PR against `main` on `outskirtslabs/h2o-zig`, or comment on the existing one. Include only straightforward updates. List each dependency as old to new revision, every fork commit, validation results, and anything held back. Mention `@Ramblurr`.
 
-Leave complicated h2o-zig work unpushed in its worktree. Never push to `main`, merge, or delete remote branches. Force-push only this run's `deps/` branch after a step 2 rebase, with `--force-with-lease`.
+Leave complicated h2o-zig work unpushed in its worktree. Never push to `main` except the step 1 fast-forward, merge, or delete remote branches. Force-push only this run's `deps/` branch after a step 2 rebase, with `--force-with-lease`.
 
 Complete when: the PR has every straightforward update, and no complicated h2o-zig work left the machine.
 
 ## 5. Report and clean up
 
-Remove the worktrees of published work; keep those holding complicated updates. End with `No updates.`, or with the PR URL; one line per dependency (old to new, straightforward or complicated); validation results; and each complicated update's blocker, worktree path, and proposed fix.
+Remove the worktrees of published work; keep those holding complicated updates. Also remove earlier runs' `t3/daily-dependency-bump*` worktrees and branches that have no changes besides `.zig-cache*` and no commits beyond `upstream/main`; keep any others and report them. End with the PR URL; one line per dependency (old to new, straightforward or complicated); validation results; and each complicated update's blocker, worktree path, and proposed fix.
