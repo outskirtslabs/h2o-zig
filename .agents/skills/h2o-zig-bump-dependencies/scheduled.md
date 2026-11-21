@@ -6,6 +6,8 @@ A T3 schedule starts this run daily at 05:00 in a fresh thread. No human answers
 
 Run `git fetch --multiple upstream origin`. If `main` is behind `upstream/main` by a fast-forward only, run `git -C <root> merge --ff-only upstream/main` (`<root>` is the main checkout: `dirname "$(git rev-parse --git-common-dir)"`) and `git push origin upstream/main:main`; if the root checkout is dirty or not on `main`, report it instead.
 
+Then remove earlier runs' leftovers, even when nothing is new: every worktree, local branch, and `upstream` or `origin` branch matching `t3/*dependency-bump*` or `deps/*`, except this thread's, whose `git status --porcelain` is empty and whose `git cherry upstream/main <branch>` prints no `+` line. Use `git worktree remove`, `git branch -D`, and `git push <remote> --delete <branch>`. Report any you keep.
+
 Compare against the pins on `upstream/main`, not the current checkout. Check every entry in `build.zig.zon`, including lazy ones, and the flake inputs:
 
 - H2O: latest `upstream/master`.
@@ -20,7 +22,7 @@ Compare against the pins on `upstream/main`, not the current checkout. Check eve
   git show upstream/main:flake.lock | diff -q - "$lock"
   ```
 
-If nothing is new, report only `No updates` and stop.
+If nothing is new, report `No updates` and any kept leftovers, then stop.
 
 Complete when: every dependency has a current and a target revision.
 
@@ -55,10 +57,12 @@ Complete when: every update is committed and classified.
 
 Push the `deps/` branch to `upstream` and open a PR against `main` on `outskirtslabs/h2o-zig`, or comment on the existing one. Include only straightforward updates. List each dependency as old to new revision, every fork commit, validation results, and anything held back. Mention `@Ramblurr`.
 
-Leave complicated h2o-zig work unpushed in its worktree. Never push to `main` except the step 1 fast-forward, merge, or delete remote branches. Force-push only this run's `deps/` branch after a step 2 rebase, with `--force-with-lease`.
+If the PR changes only `flake.lock` and `nix flake check` passed, land it: `git push upstream <deps-branch>:main` (fast-forward only), `git push origin upstream/main:main`, and fast-forward the root checkout as in step 1.
+
+Leave complicated h2o-zig work unpushed in its worktree. Never push to `main` except the step 1 fast-forward and landing a flake-only PR; never merge, and delete remote branches only as step 1 allows. Force-push only this run's `deps/` branch after a step 2 rebase, with `--force-with-lease`.
 
 Complete when: the PR has every straightforward update, and no complicated h2o-zig work left the machine.
 
 ## 5. Report and clean up
 
-Remove the worktrees of published work; keep those holding complicated updates. Also remove earlier runs' `t3/daily-dependency-bump*` worktrees and branches that have no changes besides `.zig-cache*` and no commits beyond `upstream/main`; keep any others and report them. End with the PR URL; one line per dependency (old to new, straightforward or complicated); validation results; and each complicated update's blocker, worktree path, and proposed fix.
+Remove the worktrees of published work; keep those holding complicated updates. This thread's own worktree stays; the next run removes it. End with the PR URL; one line per dependency (old to new, straightforward or complicated); validation results; and each complicated update's blocker, worktree path, and proposed fix.
